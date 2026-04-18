@@ -1,31 +1,17 @@
 // Mock State DCO Cross-Functional Journey
 let state = {
   // Env Officer State
-  evidenceReviewed: false,
-  consAdequacy: 'Pending', 
-  issueStatus: 'In Review',
-  draftDone: false,
-  envCleared: false,
-  masterCleared: false,
+  evidenceReviewed: false, consAdequacy: 'Pending', issueStatus: 'In Review', draftDone: false, envCleared: false, masterCleared: false,
   // Env Lead State 
-  leadFlagged: false,
-  leadReviewed: false,
-  leadNote: '',
-  leadEndorsed: false,
+  leadFlagged: false, leadReviewed: false, leadNote: '', leadEndorsed: false,
   // Env Support Coordinator State
-  taskConsAdminComplete: false,
-  taskDocAdminComplete: false,
-  consDueDate: '2026-05-18',
-  consExtended: false,
+  taskConsAdminComplete: false, taskDocAdminComplete: false, consDueDate: '2026-05-18', consExtended: false,
   // Planning Case Manager State
-  planDraftAck: false,
-  planPackRev: false,
-  planOnTrack: false,
+  planDraftAck: false, planPackRev: false, planOnTrack: false,
   // Legal State
-  legalDocReviewed: false,
-  legalPackRev: false,
-  legalOnTrack: false,
-  legalCleared: false
+  legalDocReviewed: false, legalPackRev: false, legalOnTrack: false, legalCleared: false,
+  // Decision Support / Submission Coordinator State
+  coordPackReviewed: false, coordIssuePrep: false, coordPubReady: false
 };
 
 function initState() {
@@ -48,7 +34,8 @@ function resetState() {
       leadFlagged: false, leadReviewed: false, leadNote: '', leadEndorsed: false,
       taskConsAdminComplete: false, taskDocAdminComplete: false, consDueDate: '2026-05-18', consExtended: false,
       planDraftAck: false, planPackRev: false, planOnTrack: false,
-      legalDocReviewed: false, legalPackRev: false, legalOnTrack: false, legalCleared: false
+      legalDocReviewed: false, legalPackRev: false, legalOnTrack: false, legalCleared: false,
+      coordPackReviewed: false, coordIssuePrep: false, coordPubReady: false
   };
   saveState();
   navigateTo('shared_case_work', 'shared');
@@ -93,15 +80,8 @@ function actionIssue(val) {
   }
   state.issueStatus = val; saveState();
 }
-function actionDraft() {
-  let val = document.getElementById('ed_text').value;
-  if(val.trim() === '') { alert("Please enter some text before submitting."); return; }
-  state.draftDone = true; saveState();
-}
-function actionEnvClearance() {
-  state.envCleared = true; saveState(); navigateTo('shared_case_work', 'shared');
-  alert("Environmental Clearance signed off! Output unblocked.");
-}
+function actionDraft() { state.draftDone = true; saveState(); }
+function actionEnvClearance() { state.envCleared = true; saveState(); navigateTo('shared_case_work', 'shared'); }
 
 // Actions -- Env Lead
 function actionLeadFlag() { state.leadFlagged = true; state.leadReviewed = false; saveState(); }
@@ -109,10 +89,8 @@ function actionLeadReview() { state.leadReviewed = true; state.leadFlagged = fal
 
 // Actions -- Env Coordinator
 function actionConsUpdate() {
-  let dVal = document.getElementById('cons_due_in').value;
-  if(dVal) state.consDueDate = dVal;
-  state.consExtended = document.getElementById('cons_ext_in').checked;
-  saveState();
+  let dVal = document.getElementById('cons_due_in').value; if(dVal) state.consDueDate = dVal;
+  state.consExtended = document.getElementById('cons_ext_in').checked; saveState();
 }
 function actionConsAdmin() { state.taskConsAdminComplete = true; saveState(); }
 function actionDocAdmin() { state.taskDocAdminComplete = true; saveState(); }
@@ -132,6 +110,12 @@ function actionLegalClear() {
   state.legalCleared = true; saveState(); navigateTo('plan_ready', 'plan');
 }
 
+// Actions -- Decision Support / Submission Coordinator
+function actionCoordPack() { state.coordPackReviewed = true; saveState(); }
+function actionCoordPrep() { state.coordIssuePrep = true; saveState(); }
+function actionCoordPub() { state.coordPubReady = true; saveState(); navigateTo('shared_case_work', 'shared'); alert("Publication marked as internally ready!"); }
+
+
 // UI Sync
 function updateUI() {
   let issueReady = (state.issueStatus === 'Resolved');
@@ -140,106 +124,10 @@ function updateUI() {
   let envReady = (state.evidenceReviewed && consReady && issueReady && state.draftDone && adminReady);
   
   let packReady = state.planPackRev;
-  let trackReady = state.planOnTrack;
   let masterReady = (state.envCleared && packReady && consReady && state.legalCleared); 
+  let finalPubReady = (state.masterCleared && state.coordPackReviewed && state.coordIssuePrep);
 
   let adminTaskCount = (state.taskConsAdminComplete ? 0 : 1) + (state.taskDocAdminComplete ? 0 : 1);
-
-  // === Documents ===
-  let btnEv = document.getElementById('btn_ev_review');
-  let lblEv = document.getElementById('lbl_ev_review');
-  if(btnEv && lblEv) {
-      if(state.evidenceReviewed) { btnEv.style.display = 'none'; lblEv.className = 'tag-green'; lblEv.innerHTML = '&#10003; Reviewed'; }
-      else { btnEv.style.display = 'inline-flex'; lblEv.className = 'tag-red'; lblEv.innerText = 'Awaiting Review'; }
-  }
-  let btnDocAdm = document.getElementById('btn_doc_admin');
-  let lblDocAdm = document.getElementById('lbl_doc_admin');
-  if(btnDocAdm && lblDocAdm) {
-      if(state.taskDocAdminComplete) { btnDocAdm.style.display = 'none'; lblDocAdm.className = 'tag-green'; lblDocAdm.innerHTML = '&#10003; Metadata Complete'; } 
-      else { btnDocAdm.style.display = 'inline-flex'; lblDocAdm.className = 'tag-red'; lblDocAdm.innerText = 'Metadata Incomplete'; }
-  }
-  let btnLegDoc = document.getElementById('btn_legal_doc_rev');
-  let lblLegDoc = document.getElementById('lbl_legal_doc_rev');
-  if(btnLegDoc && lblLegDoc) {
-      if(state.legalDocReviewed) { btnLegDoc.style.display = 'none'; lblLegDoc.className = 'tag-green'; lblLegDoc.innerHTML = '&#10003; Legally Reviewed'; } 
-      else { btnLegDoc.style.display = 'inline-flex'; lblLegDoc.className = 'tag-red'; lblLegDoc.innerText = 'Awaiting Legal Review'; }
-  }
-
-  // === Consultation Tracker ===
-  let adqStat = document.getElementById('ec_adeq_stat');
-  if(adqStat) {
-      if(state.consAdequacy === 'Sufficient') adqStat.innerHTML = '<span class="tag-green">Sufficient</span>';
-      else adqStat.innerHTML = '<span class="tag-red">Pending Assessment</span>';
-
-      let actBtn = document.getElementById('btn_adq_s');
-      if(actBtn) { actBtn.style.outline = (state.consAdequacy === 'Sufficient') ? '2px solid #000' : 'none'; }
-      document.getElementById('ec_resp_stat').innerHTML = (state.consAdequacy !== 'Pending') ? '<span class="tag-green">Received & Reviewed</span>' : '<span class="tag-amber">Received, Not Reviewed</span>';
-      document.getElementById('ec_due_val').innerText = new Date(state.consDueDate).toLocaleDateString('en-GB') || '18 May 2026';
-      document.getElementById('ec_ext_val').innerHTML = state.consExtended ? '<span class="tag-amber">Yes</span>' : 'No';
-      
-      document.getElementById('cons_due_in').value = state.consDueDate;
-      document.getElementById('cons_ext_in').checked = state.consExtended;
-      
-      let btnConsAdm = document.getElementById('btn_cons_admin');
-      let lblConsAdm = document.getElementById('ec_admin_lbl');
-      if(state.taskConsAdminComplete) { if(btnConsAdm) btnConsAdm.style.display = 'none'; lblConsAdm.innerHTML = '<span class="tag-green">Complete</span>'; } 
-      else { if(btnConsAdm) btnConsAdm.style.display = 'inline-flex'; lblConsAdm.innerHTML = '<span class="tag-red">Incomplete Metadata</span>'; }
-  }
-
-  // === Env Drafting ===
-  let dBan = document.getElementById('ed_stat_banner');
-  if(dBan) {
-      if(state.draftDone) { dBan.className = 'sf-banner success'; dBan.innerHTML = '&#10003; Drafting contribution submitted directly to Recommendation Report.'; document.getElementById('ed_btn').innerText = 'Update Submission'; } 
-      else { dBan.className = 'sf-banner error'; dBan.innerHTML = 'Drafting not yet submitted.'; }
-  }
-
-  // === Shared Issue Coordination ===
-  let icEnv = document.getElementById('ic_env_stat');
-  if(icEnv) {
-      if(state.issueStatus === 'Resolved') icEnv.innerHTML = '<span class="tag-green">Resolved</span>';
-      else if(state.issueStatus === 'In Review') icEnv.innerHTML = '<span class="tag-amber">In Review</span>';
-      else icEnv.innerHTML = '<span class="tag-red">Open</span>';
-  }
-
-  // === Planning Workspace ===
-  let pwDraftAck = document.getElementById('pw_draft_ack');
-  if(pwDraftAck) {
-     if(state.planDraftAck) { pwDraftAck.innerHTML = '<span class="tag-green">Yes</span>'; document.getElementById('pw_btn_ack').style.display = 'none'; } 
-     else { pwDraftAck.innerHTML = '<span class="tag-amber">No</span>'; document.getElementById('pw_btn_ack').style.display = 'inline-block'; }
-     
-     if(state.envCleared) document.getElementById('pw_env_stat').innerHTML = '<span class="tag-green">Cleared</span>';
-     else if(envReady) document.getElementById('pw_env_stat').innerHTML = '<span class="tag-amber">Env Validation Ready</span>';
-     else document.getElementById('pw_env_stat').innerHTML = '<span class="tag-red">In Review / Blocked</span>';
-     
-     if(state.legalCleared) document.getElementById('pw_leg_stat').innerHTML = '<span class="tag-green">Legal Sign-off</span>';
-     else if(state.legalOnTrack) document.getElementById('pw_leg_stat').innerHTML = '<span class="tag-green">Legally On Track</span>';
-     else document.getElementById('pw_leg_stat').innerHTML = '<span class="tag-amber">Reviewing</span>';
-
-     if(state.consAdequacy === 'Sufficient') document.getElementById('pw_cons_stat').innerHTML = '<span class="tag-green">Complete</span>';
-     else document.getElementById('pw_cons_stat').innerHTML = '<span class="tag-amber">Pending Admin/Assessment</span>';
-  }
-
-  // === Legal Workspace ===
-  let lwReady = document.getElementById('lw_ready');
-  if(lwReady) {
-      if(state.legalCleared) {
-         lwReady.innerHTML = '<span class="tag-green">✅ Cleared</span>';
-         document.getElementById('lw_banner').className = 'sf-banner success'; document.getElementById('lw_banner').innerHTML = '&#10003; Legal Workspace Cleared.';
-      } else if(state.legalOnTrack) {
-         lwReady.innerHTML = '<span class="tag-green">On Track</span>';
-         document.getElementById('lw_banner').className = 'sf-banner info'; document.getElementById('lw_banner').innerHTML = 'Legal review is active and progressing cleanly.';
-      } else {
-         lwReady.innerHTML = '<span class="tag-amber">Review Pending</span>';
-      }
-
-      let lwDocStat = document.getElementById('lw_doc_stat');
-      if(state.legalDocReviewed) lwDocStat.innerHTML = '<span class="tag-green">Reviewed</span>';
-      else lwDocStat.innerHTML = '<span class="tag-amber">Awaiting Legal Review</span>';
-
-      let lwConsStat = document.getElementById('lw_cons_stat');
-      if(state.consAdequacy === 'Sufficient') lwConsStat.innerHTML = '<span class="tag-green">Adequacy Sufficient</span>';
-      else lwConsStat.innerHTML = '<span class="tag-amber">Adequacy Pending</span>';
-  }
 
   // === Submission Pack Coordination (Planning/Legal Multi-View) ===
   let ppEnvDraft = document.getElementById('pp_env_draft');
@@ -247,16 +135,19 @@ function updateUI() {
      if(state.draftDone) ppEnvDraft.innerHTML = '<span class="tag-green">Submitted</span>';
      else ppEnvDraft.innerHTML = '<span class="tag-red">Awaiting Draft</span>';
      
-     if(state.legalPackRev) document.getElementById('pp_leg_stat').innerHTML = '<span class="tag-green">Legal Endorsed</span>';
-     else document.getElementById('pp_leg_stat').innerHTML = '<span class="tag-amber">Pending Sign-off</span>';
+     let ppLegStat = document.getElementById('pp_leg_stat');
+     if(ppLegStat) {
+       if(state.legalPackRev) ppLegStat.innerHTML = '<span class="tag-green">Legal Endorsed</span>';
+       else ppLegStat.innerHTML = '<span class="tag-amber">Pending Sign-off</span>';
+     }
      
      let ppStat = document.getElementById('pp_stat');
      let ppBan = document.getElementById('pp_banner');
      let btnPpRev = document.getElementById('btn_pp_rev');
      let btnPpLegRev = document.getElementById('btn_pp_leg_rev');
      
-     if(state.legalPackRev) btnPpLegRev.style.display = 'none'; else btnPpLegRev.style.display = 'inline-block';
-     if(state.planPackRev) btnPpRev.style.display = 'none'; else btnPpRev.style.display = 'inline-block';
+     if(btnPpLegRev) { if(state.legalPackRev) btnPpLegRev.style.display = 'none'; else btnPpLegRev.style.display = 'inline-block'; }
+     if(btnPpRev) { if(state.planPackRev) btnPpRev.style.display = 'none'; else btnPpRev.style.display = 'inline-block'; }
 
      if(state.planPackRev && state.legalPackRev) {
          ppStat.innerHTML = '<span class="tag-green">Compiled, Supported & Validated</span>';
@@ -268,6 +159,58 @@ function updateUI() {
          ppStat.innerHTML = '<span class="tag-amber">Drafting / Compiling</span>';
          ppBan.className = 'sf-banner warn'; ppBan.innerHTML = 'Review draft contributions from cross-functional teams prior to pack compilation.';
      }
+
+     // Decision Support Overlayer inside Pack view
+     let cPackTxt = document.getElementById('coord_pack_stat_txt');
+     let cPackAct = document.getElementById('coord_pack_act');
+     if(cPackTxt) {
+       if(state.coordPackReviewed) {
+         cPackTxt.innerHTML = '✅ Final Pack Confirmed for Exec Progression'; 
+         cPackAct.innerHTML = '';
+       } else {
+         cPackTxt.innerHTML = '❌ Final Pack Completeness Assessment Pending';
+       }
+     }
+  }
+
+  // === Decision Issue / Publication Hub ===
+  let decChkPack = document.getElementById('dec_chk_pack');
+  if(decChkPack) {
+    if(state.coordPackReviewed) {
+      decChkPack.innerHTML = '✅ Submission Pack & Clearances Finalized internally';
+    } else {
+      decChkPack.innerHTML = '❌ Submission Pack & Clearances Finalized internally';
+    }
+
+    let decChkPrep = document.getElementById('dec_chk_prep');
+    let btnIssuePrep = document.getElementById('btn_issue_prep');
+    if(state.coordIssuePrep) {
+      decChkPrep.innerHTML = '✅ Issue / Notification Materials Verified';
+      if(btnIssuePrep) btnIssuePrep.style.display = 'none';
+    } else {
+      decChkPrep.innerHTML = '❌ Issue / Notification Materials Verified';
+      if(btnIssuePrep) btnIssuePrep.style.display = 'inline-block';
+    }
+
+    let btnPubReady = document.getElementById('btn_pub_ready');
+    let decSumm = document.getElementById('dec_summ');
+    let decBan = document.getElementById('dec_banner');
+
+    if(state.coordPubReady) {
+      decSumm.innerHTML = '<span class="tag-green">Publication Assets Complete ✓</span>';
+      decBan.className = 'sf-banner success'; decBan.innerHTML = '&#10003; Case marked physically ready for publication and issuance.';
+      if(btnPubReady) { btnPubReady.innerText = 'Publication Ready ✓'; btnPubReady.disabled = true; }
+    } else {
+      if(finalPubReady) {
+         decSumm.innerHTML = '<span class="tag-green">Ready to Publish</span>';
+         decBan.className = 'sf-banner info'; decBan.innerHTML = 'Assets structurally verified. Confirm final readiness to end internal workflows.';
+         if(btnPubReady) { btnPubReady.disabled = false; }
+      } else {
+         decSumm.innerHTML = '<span class="tag-amber">Preparing Assets</span>';
+         decBan.className = 'sf-banner warn'; decBan.innerHTML = 'Coordinate final preparation steps before authorizing internal release.';
+         if(btnPubReady) { btnPubReady.disabled = true; }
+      }
+    }
   }
 
   // === Master Clearance / Decision Readiness ===
@@ -284,7 +227,6 @@ function updateUI() {
      } else {
          let mmban = document.getElementById('pr_banner');
          
-         // Manage Legal button states inside the Readiness room
          let lBtnC = document.getElementById('btn_legal_clear');
          let lBtnT = document.getElementById('btn_lr_track');
          if(state.legalCleared) {
@@ -321,31 +263,44 @@ function updateUI() {
   // === Master / Shared Case Work Updates ===
   let cwBan = document.getElementById('cw_banner');
   if(cwBan) {
-      if(state.masterCleared) {
-          cwBan.className = 'sf-banner success'; cwBan.innerHTML = '&#10003; Case complete. Master Decision Published.';
+      if(state.coordPubReady) {
+          cwBan.className = 'sf-banner success'; cwBan.innerHTML = '&#10003; Case marked fully ready for physical issuance. Cycle complete.';
+          document.getElementById('case_pub_ready').innerHTML = '<span class="tag-green">Ready</span>';
+          document.getElementById('case_pub_status').innerHTML = '<span class="tag-green">Ready ✓</span>';
           document.getElementById('case_env_status').innerHTML = '<span class="tag-green">Cleared</span>';
           document.getElementById('case_plan_status').innerHTML = '<span class="tag-green">Cleared</span>';
           document.getElementById('case_legal_status').innerHTML = '<span class="tag-green">Cleared</span>';
           document.getElementById('case_plan_track_ind').innerHTML = '<span class="tag-green">Published</span>';
-          document.getElementById('case_leg_track_ind').innerHTML = '<span class="tag-green">Cleared</span>';
+          document.getElementById('case_overall_rag').innerHTML = '<span class="tag-green">Green</span>';
+      } else if(state.masterCleared) {
+          cwBan.className = 'sf-banner success'; cwBan.innerHTML = '&#10003; Case logic complete. Master Decision Published. Awaiting Coordinator physical issuance.';
+          document.getElementById('case_pub_ready').innerHTML = (state.coordPackReviewed && state.coordIssuePrep) ? '<span class="tag-green">Verifications Checked</span>' : '<span class="tag-amber">Reviewing Materials</span>';
+          document.getElementById('case_pub_status').innerHTML = '<span class="tag-amber">Approaching Issuance</span>';
+          document.getElementById('case_env_status').innerHTML = '<span class="tag-green">Cleared</span>';
+          document.getElementById('case_plan_status').innerHTML = '<span class="tag-green">Cleared</span>';
+          document.getElementById('case_legal_status').innerHTML = '<span class="tag-green">Cleared</span>';
+          document.getElementById('case_plan_track_ind').innerHTML = '<span class="tag-green">Published</span>';
           document.getElementById('case_overall_rag').innerHTML = '<span class="tag-green">Green</span>';
       } else if(masterReady) {
           cwBan.className = 'sf-banner info'; cwBan.innerHTML = 'Ready for Master Clearance.';
           document.getElementById('case_plan_track_ind').innerHTML = state.planOnTrack ? '<span class="tag-green">Confirmed On Track</span>' : '<span class="tag-amber">Pending Check</span>';
-          document.getElementById('case_leg_track_ind').innerHTML = state.legalCleared ? '<span class="tag-green">Cleared</span>' : (state.legalOnTrack ? '<span class="tag-green">On Track</span>' : '<span class="tag-amber">Evaluating</span>');
+          document.getElementById('case_pub_ready').innerHTML = '<span class="tag-amber">Tracking</span>';
           document.getElementById('case_overall_rag').innerHTML = '<span class="tag-green">Green</span>';
       } else {
           cwBan.className = 'sf-banner warn'; cwBan.innerHTML = '&#9888; Master Clearance requires final cross-departmental sign-offs.';
           document.getElementById('case_overall_rag').innerHTML = '<span class="tag-amber">Amber</span>';
           document.getElementById('case_plan_track_ind').innerHTML = state.planOnTrack ? '<span class="tag-green">Confirmed On Track</span>' : '<span class="tag-amber">Pending Check</span>';
-          document.getElementById('case_leg_track_ind').innerHTML = state.legalCleared ? '<span class="tag-green">Cleared</span>' : (state.legalOnTrack ? '<span class="tag-green">On Track</span>' : '<span class="tag-amber">Evaluating</span>');
           
           document.getElementById('case_legal_status').innerHTML = state.legalCleared ? '<span class="tag-green">Cleared</span>' : '<span class="tag-amber">Reviewing</span>';
       }
-      
-      let tAdm = document.getElementById('case_admin_tasks');
-      if(adminReady) tAdm.innerHTML = '<span class="tag-green">Complete</span>';
-      else tAdm.innerHTML = `<span class="tag-amber">${adminTaskCount} Open</span>`;
+  }
+
+  // Document/Issue views remain mostly same
+  let btnEv = document.getElementById('btn_ev_review');
+  let lblEv = document.getElementById('lbl_ev_review');
+  if(btnEv && lblEv) {
+      if(state.evidenceReviewed) { btnEv.style.display = 'none'; lblEv.className = 'tag-green'; lblEv.innerHTML = '&#10003; Reviewed'; }
+      else { btnEv.style.display = 'inline-flex'; lblEv.className = 'tag-red'; lblEv.innerText = 'Awaiting Review'; }
   }
 }
 
