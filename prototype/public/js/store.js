@@ -1,16 +1,38 @@
-// Mock State
-const s = {
-  issueRes: false,
-  consStage: 0, // 0 await, 1 rev, 2 cleared
+// Mock State DCO Env Journey
+let state = {
+  evidenceReviewed: false,
+  consAdequacy: 'Pending', // 'Pending', 'Insufficient', 'Partially Sufficient', 'Sufficient'
+  issueStatus: 'Open',     // 'Open', 'In Review', 'Resolved'
   draftDone: false,
   envCleared: false,
   masterCleared: false
 };
 
-function resetState() {
-  s.issueRes = false; s.consStage = 0; s.draftDone = false; s.envCleared = false; s.masterCleared = false;
+function initState() {
+  let saved = localStorage.getItem('dco_env_journey');
+  if(saved) {
+      try { state = JSON.parse(saved); } catch(e){}
+  }
   updateUI();
-  alert('State Reset');
+}
+
+function saveState() {
+  localStorage.setItem('dco_env_journey', JSON.stringify(state));
+  updateUI();
+}
+
+function resetState() {
+  localStorage.removeItem('dco_env_journey');
+  state = {
+      evidenceReviewed: false,
+      consAdequacy: 'Pending',
+      issueStatus: 'Open',
+      draftDone: false,
+      envCleared: false,
+      masterCleared: false
+  };
+  saveState();
+  navigateTo('shared_case_work', 'shared');
 }
 
 // Navigation Logic
@@ -18,10 +40,8 @@ function setCategory(catId) {
   document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
   document.querySelectorAll('.screen-nav').forEach(n => n.classList.remove('active'));
-  document.getElementById('nav_' + catId).classList.add('active');
-  // Auto-open first screen in this category
-  const firstBtn = document.querySelector('#nav_' + catId + ' .nav-btn');
-  if(firstBtn) firstBtn.click();
+  let navId = document.getElementById('nav_' + catId);
+  if(navId) navId.classList.add('active');
 }
 
 function navigateTo(screenId, forceCat) {
@@ -31,124 +51,238 @@ function navigateTo(screenId, forceCat) {
     });
   }
   document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-  document.getElementById(screenId).classList.add('active');
+  let sc = document.getElementById(screenId);
+  if(sc) sc.classList.add('active');
   
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   const btn = document.querySelector(`.nav-btn[data-target='${screenId}']`);
   if (btn) btn.classList.add('active');
   updateUI();
+  window.scrollTo(0,0);
 }
 
-document.querySelectorAll('.nav-btn').forEach(b => {
-  b.addEventListener('click', (e) => { navigateTo(e.target.dataset.target); });
-});
-
-// Action logic
-function toggleEnvIssue() { s.issueRes = !s.issueRes; updateUI(); }
-function updateEnvCons() { 
-  if (s.consStage === 0) s.consStage = 1;
-  else if (s.consStage === 1) s.consStage = 2;
-  updateUI();
+// Actions
+function actionEvidence() {
+  state.evidenceReviewed = true;
+  saveState();
 }
-function submitEnvDraft() { s.draftDone = true; updateUI(); }
-function clearEnv() { s.envCleared = true; updateUI(); }
-function clearMaster() { s.masterCleared = true; updateUI(); }
 
-// UI Sync Machine
+function actionAdequacy(val) {
+  state.consAdequacy = val;
+  saveState();
+}
+
+function actionIssue(val) {
+  if (val === 'Resolved') {
+      if(state.consAdequacy !== 'Sufficient' || !state.evidenceReviewed) {
+          alert('Cannot resolve issue. Consultation adequacy must be Sufficient and Evidence must be reviewed.');
+          return;
+      }
+  }
+  state.issueStatus = val;
+  saveState();
+}
+
+function actionDraft() {
+  let val = document.getElementById('ed_text').value;
+  if(val.trim() === '') {
+      alert("Please enter some text before submitting.");
+      return;
+  }
+  state.draftDone = true;
+  saveState();
+}
+
+function actionEnvClearance() {
+  state.envCleared = true;
+  saveState();
+  navigateTo('shared_case_work', 'shared');
+  alert("Environmental Clearance signed off! Overall Case Unblocked.");
+}
+
+// UI Sync
 function updateUI() {
-  const envReady = s.issueRes && s.consStage === 2 && s.draftDone;
-  const overallReady = s.envCleared; // In this mock, legal is already cleared
+  // Check conditions
+  let issueReady = (state.issueStatus === 'Resolved');
+  let consReady = (state.consAdequacy === 'Sufficient');
+  let envReady = (state.evidenceReviewed && consReady && issueReady && state.draftDone);
 
-  // Env Issue
-  document.getElementById('ei_status').innerHTML = s.issueRes ? '<span class="tag-green">Resolved</span>' : '<span class="tag-red">Open (Blocking)</span>';
-  document.getElementById('ei_btn').innerText = s.issueRes ? 'Reopen Issue' : 'Mark as Resolved';
-  document.getElementById('ei_btn').className = s.issueRes ? 'sf-btn' : 'sf-btn success';
-
-  // Env Cons
-  const cLbl = s.consStage===0 ? '<span class="tag-amber">Awaiting</span>' : (s.consStage===1 ? '<span class="tag-blue">Received. Needs Review</span>' : '<span class="tag-green">Reviewed & Cleared</span>');
-  document.getElementById('ec_status').innerHTML = cLbl;
-  const cBtn = document.getElementById('ec_btn');
-  if(s.consStage===0) { cBtn.innerText='Record Response Received'; cBtn.style.display='inline-flex'; }
-  else if(s.consStage===1) { cBtn.innerText='Mark as Reviewed / Adequate'; cBtn.style.display='inline-flex'; }
-  else { cBtn.style.display='none'; }
-
-  // Env Draft
-  document.getElementById('ed_status').innerHTML = s.draftDone ? '<span class="tag-green">Submitted</span>' : '<span class="tag-red">Not Submitted</span>';
-  document.getElementById('ed_btn').innerText = s.draftDone ? 'Update Draft' : 'Submit Drafting';
-
-  // Env Readiness
-  document.getElementById('er_chk_iss').innerText = s.issueRes ? '✅ Issue ENV-ISS-001 Resolved' : '❌ Issue ENV-ISS-001 Resolved';
-  document.getElementById('er_chk_cons').innerText = s.consStage===2 ? '✅ Consultation CONS-001 Reviewed' : '❌ Consultation CONS-001 Reviewed';
-  document.getElementById('er_chk_draft').innerText = s.draftDone ? '✅ Drafting Submitted' : '❌ Drafting Submitted';
-  
-  if (s.envCleared) {
-    document.getElementById('er_status').innerHTML = '<span class="tag-green">Cleared</span>';
-    document.getElementById('er_btn').innerText = 'Cleared ✓';
-    document.getElementById('er_btn').disabled = true;
-  } else if (envReady) {
-    document.getElementById('er_status').innerHTML = '<span class="tag-green">Ready to Sign-off</span>';
-    document.getElementById('er_btn').disabled = false;
-  } else {
-    document.getElementById('er_status').innerHTML = '<span class="tag-red">Blocked</span>';
-    document.getElementById('er_btn').disabled = true;
+  // Cross-screen elements
+  // Evidence
+  let btnEv = document.getElementById('btn_ev_review');
+  let lblEv = document.getElementById('lbl_ev_review');
+  if(btnEv && lblEv) {
+      if(state.evidenceReviewed) {
+          btnEv.style.display = 'none';
+          lblEv.className = 'tag-green';
+          lblEv.innerHTML = '&#10003; Reviewed';
+      } else {
+          btnEv.style.display = 'inline-flex';
+          lblEv.className = 'tag-red';
+          lblEv.innerText = 'Awaiting Review';
+      }
   }
 
-  // Cross-rollups
-  // Env Dash
-  document.getElementById('env_dash_blocks').innerText = envReady ? '1' : '2'; // mock reducing the total
-  document.getElementById('env_dash_iss_count').innerText = s.issueRes ? '0' : '1';
-  document.getElementById('env_dash_ready').innerHTML = envReady ? '<span class="tag-green">Ready</span>' : '<span class="tag-red">Blocked</span>';
-  
-  // Env Work
-  document.getElementById('ew_ready').innerHTML = envReady ? '<span class="tag-green">Ready for Clearance</span>' : '<span class="tag-red">Not Ready</span>';
-  document.getElementById('ew_iss_tag').innerText = s.issueRes ? 'Resolved' : 'Open';
-  document.getElementById('ew_iss_tag').className = s.issueRes ? 'tag-green' : 'tag-red';
-  document.getElementById('ew_cons_tag').innerText = s.consStage===2 ? 'Cleared' : 'Pending';
-  document.getElementById('ew_cons_tag').className = s.consStage===2 ? 'tag-green' : 'tag-amber';
-  document.getElementById('ew_draft_tag').innerText = s.draftDone ? 'Done' : 'Pending';
-  document.getElementById('ew_draft_tag').className = s.draftDone ? 'tag-green' : 'tag-red';
+  // Consultation Tracker
+  let adqStat = document.getElementById('ec_adeq_stat');
+  if(adqStat) {
+      if(state.consAdequacy === 'Sufficient') adqStat.innerHTML = '<span class="tag-green">Sufficient</span>';
+      else if(state.consAdequacy === 'Partially Sufficient') adqStat.innerHTML = '<span class="tag-amber">Partially Sufficient</span>';
+      else if(state.consAdequacy === 'Insufficient') adqStat.innerHTML = '<span class="tag-red">Insufficient</span>';
+      else adqStat.innerHTML = '<span class="tag-red">Pending Assessment</span>';
 
-  // Plan Workspace & Pack
-  document.getElementById('pw_env_stat').innerHTML = s.envCleared ? '<span class="tag-green">Cleared</span>' : '<span class="tag-red">Pending Env Clearance</span>';
-  document.getElementById('pc_iss_stat').innerHTML = s.issueRes ? '<span class="tag-green">Resolved</span>' : '<span class="tag-red">Open (Env Team)</span>';
-  document.getElementById('pp_draft_stat').innerHTML = s.draftDone ? '<span class="tag-green">Submitted</span>' : '<span class="tag-red">Pending from Env</span>';
-
-  // Plan Ready
-  document.getElementById('pr_chk_env').innerText = s.envCleared ? '✅ Environmental Clearance Signed-off' : '❌ Environmental Clearance Signed-off';
-  if (s.masterCleared) {
-    document.getElementById('pr_status').innerHTML = '<span class="tag-green">Submitted to Minister</span>';
-    document.getElementById('pr_btn').innerText = 'Submitted ✓';
-    document.getElementById('pr_btn').disabled = true;
-  } else if (s.envCleared) {
-    document.getElementById('pr_status').innerHTML = '<span class="tag-green">Ready for Submission</span>';
-    document.getElementById('pr_btn').disabled = false;
-  } else {
-    document.getElementById('pr_status').innerHTML = '<span class="tag-red">Blocked by Env Team</span>';
-    document.getElementById('pr_btn').disabled = true;
+      ['btn_adq_i', 'btn_adq_p', 'btn_adq_s'].forEach(id => {
+          let b = document.getElementById(id);
+          if(b) b.style.outline = 'none';
+      });
+      
+      let btnMap = { 'Insufficient':'btn_adq_i', 'Partially Sufficient':'btn_adq_p', 'Sufficient':'btn_adq_s' };
+      if(state.consAdequacy !== 'Pending') {
+          document.getElementById('ec_resp_stat').innerHTML = '<span class="tag-green">Received & Reviewed</span>';
+          let actBtn = document.getElementById(btnMap[state.consAdequacy]);
+          if(actBtn) actBtn.style.outline = '2px solid #000';
+      } else {
+          document.getElementById('ec_resp_stat').innerHTML = '<span class="tag-amber">Received, Not Reviewed</span>';
+      }
   }
 
-  // Shared / Case Work / Timeline
-  document.getElementById('case_env_status').innerHTML = s.envCleared ? '<span class="tag-green">Cleared</span>' : '<span class="tag-red">Blocked</span>';
-  document.getElementById('case_plan_status').innerHTML = s.masterCleared ? '<span class="tag-green">Cleared</span>' : '<span class="tag-amber">In Progress</span>';
-  document.getElementById('task_env').innerHTML = s.draftDone ? '<span class="tag-green">Done</span>' : '<span class="tag-red">Overdue</span>';
-  
-  const overallRag = s.masterCleared ? 'tag-green' : (envReady ? 'tag-amber' : 'tag-red');
-  document.getElementById('case_overall_rag').innerHTML = `<span class="${overallRag}">${s.masterCleared?'Green':envReady?'Amber':'Red'}</span>`;
-  document.getElementById('port_case1_rag').innerHTML = `<span class="${overallRag}">${s.masterCleared?'Green':envReady?'Amber':'Red'}</span>`;
+  // Env Issue Detail
+  let eiStat = document.getElementById('ei_status');
+  if(eiStat) {
+      if(state.issueStatus === 'Resolved') eiStat.innerHTML = '<span class="tag-green">Resolved</span>';
+      else if(state.issueStatus === 'In Review') eiStat.innerHTML = '<span class="tag-amber">In Review</span>';
+      else eiStat.innerHTML = '<span class="tag-red">Open</span>';
 
-  // Leadership
-  document.getElementById('ld_case1_stat').innerHTML = s.masterCleared ? '<span class="tag-green">Cleared - Ready for Pub</span>' : '<span class="tag-red">Blocked in Review</span>';
-  const pubBtn = document.getElementById('l_dec_btn');
-  if (s.masterCleared) {
-    pubBtn.disabled = false;
-    pubBtn.className = 'sf-btn success';
-    document.getElementById('l_dec_msg').innerText = "Clearance received. Ready to publish.";
-  } else {
-    pubBtn.disabled = true;
-    pubBtn.className = 'sf-btn';
-    document.getElementById('l_dec_msg').innerText = "Requires Master Clearance submission first.";
+      let evStat = document.getElementById('ei_ev_stat');
+      if(state.evidenceReviewed) { evStat.className='tag-green'; evStat.innerHTML='&#10003; Reviewed'; }
+      
+      let consAdq = document.getElementById('ei_cons_adequacy');
+      if(state.consAdequacy === 'Sufficient') { consAdq.className='tag-green'; consAdq.innerHTML='Sufficient'; }
+      else if(state.consAdequacy === 'Pending') { consAdq.className='tag-amber'; consAdq.innerHTML='Adequacy Pending'; }
+      else { consAdq.className='tag-red'; consAdq.innerHTML=state.consAdequacy; }
+
+      // Can we resolve?
+      let btnRes = document.getElementById('btn_ei_res');
+      let eiBan = document.getElementById('ei_banner');
+      if(state.issueStatus === 'Resolved') {
+          btnRes.disabled = true;
+          eiBan.className = 'sf-banner success';
+          eiBan.innerHTML = '&#10003; Issue Resolved and mitigation confirmed.';
+      } else {
+          if(state.evidenceReviewed && state.consAdequacy === 'Sufficient') {
+              btnRes.disabled = false;
+              eiBan.className = 'sf-banner info';
+              eiBan.innerHTML = 'Prior requirements met. This issue is ready to be resolved.';
+          } else {
+              btnRes.disabled = true;
+              eiBan.className = 'sf-banner warn';
+              eiBan.innerHTML = 'This issue requires consultation adequacy and evidence review before it can be resolved.';
+          }
+      }
+  }
+
+  // Env Review Workspace
+  let ewStat = document.getElementById('ew_iss_stat');
+  if(ewStat) {
+      if(state.issueStatus === 'Resolved') ewStat.innerHTML = '<span class="tag-green">Resolved</span>';
+      else if(state.issueStatus === 'In Review') ewStat.innerHTML = '<span class="tag-amber">In Review</span>';
+      else ewStat.innerHTML = '<span class="tag-red">Open (Blocking)</span>';
+
+      let ewCons = document.getElementById('ew_iss_cons');
+      if(state.consAdequacy === 'Sufficient') ewCons.innerHTML = '<span class="tag-green">Sufficient</span>';
+      else if(state.consAdequacy === 'Pending') ewCons.innerHTML = '<span class="tag-amber">Pending</span>';
+      else ewCons.innerHTML = `<span class="tag-red">${state.consAdequacy}</span>`;
+
+      document.getElementById('ew_blocking_n').innerHTML = issueReady ? '<span class="tag-green">0</span>' : '<span class="tag-red">1</span>';
+      document.getElementById('ew_ready').innerHTML = state.envCleared ? '<span class="tag-green">Cleared</span>' : (envReady ? '<span class="tag-green">Ready for Sign-off</span>' : '<span class="tag-red">Blocked</span>');
+      
+      let ewBan = document.getElementById('ew_banner');
+      if(state.envCleared) {
+          ewBan.className = 'sf-banner success'; ewBan.innerHTML = '&#10003; Environmental Workspace Cleared.';
+      } else if(envReady) {
+          ewBan.className = 'sf-banner success'; ewBan.innerHTML = '&#10003; All environmental inputs complete. Ready for clearance page.';
+      } else {
+          ewBan.className = 'sf-banner error'; ewBan.innerHTML = '&#9888; Environmental progression is currently blocked by outstanding items.';
+      }
+
+      let dstat = document.getElementById('ew_draft_stat');
+      if(state.draftDone) { dstat.className='tag-green'; dstat.innerText='Drafting Submitted'; }
+      else { dstat.className='tag-red'; dstat.innerText='Submission Required'; }
+  }
+
+  // Drafting
+  let dBan = document.getElementById('ed_stat_banner');
+  if(dBan) {
+      if(state.draftDone) {
+          dBan.className = 'sf-banner success';
+          dBan.innerHTML = '&#10003; Drafting contribution submitted directly to Recommendation Report.';
+          document.getElementById('ed_btn').innerText = 'Update Submission';
+      } else {
+          dBan.className = 'sf-banner error';
+          dBan.innerHTML = 'Drafting not yet submitted.';
+      }
+  }
+
+  // Readiness
+  let rEv = document.getElementById('er_chk_ev');
+  if(rEv) {
+      rEv.innerHTML = state.evidenceReviewed ? '✅ Key evidence (APP-044) reviewed' : '❌ Key evidence (APP-044) reviewed';
+      document.getElementById('er_chk_cons').innerHTML = consReady ? '✅ Consultation adequacy achieved' : '❌ Consultation adequacy achieved';
+      document.getElementById('er_chk_iss').innerHTML = issueReady ? '✅ Blocking issue ENV-ISS-001 resolved' : '❌ Missing sign-off: ENV-ISS-001 is blocking';
+      document.getElementById('er_chk_draft').innerHTML = state.draftDone ? '✅ Report drafting submitted' : '❌ Report drafting not submitted';
+
+      let eqReady = document.getElementById('er_overall');
+      let erBtn = document.getElementById('er_btn_clear');
+      if(state.envCleared) {
+          eqReady.innerHTML = '<span class="tag-green">Cleared</span>';
+          erBtn.disabled = true;
+          erBtn.innerText = 'Cleared ✓';
+      } else {
+          if(envReady) {
+              eqReady.innerHTML = '<span class="tag-green">Ready to Sign-off</span>';
+              erBtn.disabled = false;
+              erBtn.innerText = 'Sign-off Env Clearance';
+          } else {
+              eqReady.innerHTML = '<span class="tag-red">Blocked</span>';
+              erBtn.disabled = true;
+              erBtn.innerText = 'Requirements Not Met';
+          }
+      }
+  }
+
+  // Master / Shared
+  let cwBan = document.getElementById('cw_banner');
+  if(cwBan) {
+      if(state.envCleared) {
+          cwBan.className = 'sf-banner success';
+          cwBan.innerHTML = '&#10003; Environmental clearance received. Case ready for final decision publication.';
+          document.getElementById('case_env_block_ind').innerHTML = '<span class="tag-green">No</span>';
+          document.getElementById('case_env_status').innerHTML = '<span class="tag-green">Cleared</span>';
+          document.getElementById('case_overall_rag').innerHTML = '<span class="tag-green">Green</span>';
+      } else {
+          cwBan.className = 'sf-banner error';
+          cwBan.innerHTML = '&#9888; Master Clearance blocked by incomplete Environmental sign-off.';
+          document.getElementById('case_env_block_ind').innerHTML = '<span class="tag-red">Yes</span>';
+          document.getElementById('case_env_status').innerHTML = '<span class="tag-red">Blocked</span>';
+          document.getElementById('case_overall_rag').innerHTML = '<span class="tag-red">Red</span>';
+      }
+  }
+  
+  let prBan = document.getElementById('pr_banner');
+  if(prBan) {
+      let bMc = document.getElementById('btn_master_clear');
+      if(state.envCleared) {
+          prBan.className = 'sf-banner success';
+          prBan.innerHTML = '&#10003; All clearances granted. Validated for minister submission.';
+          bMc.disabled = false;
+      } else {
+          prBan.className = 'sf-banner error';
+          prBan.innerHTML = 'Master clearance cannot proceed. Waiting on Environmental.';
+          bMc.disabled = true;
+      }
   }
 }
 
 // Ensure init on DOM content load
-document.addEventListener('DOMContentLoaded', updateUI);
+document.addEventListener('DOMContentLoaded', initState);
+// Note: We use window.onload or DOMContentLoaded to execute updateUI() after the elements are parsed.

@@ -33,13 +33,39 @@ To restart the demo, click the red **"Reset State"** button in the top right hea
 
 ---
 
-## 2. DCO Environmental Case Manager 
+## 2. DCO Environmental Case Manager Journey
 
-**File:** The Node.js App in `/prototype` or the `DESNZ_DCO_E2E_Prototype.html`
+**Location:** Inside the `/prototype` folder (Node.js/Express app).
 
-This tackles the cross-functional communication between Planning, Environmental, and Leadership personas. (See previous instructions for running the NodeJS version via `npm start`).
+This updated prototype implements the comprehensive **Environmental Case Manager Journey**. It illustrates a complete workflow showing how an environmental issue blocking a case can be progressed by reviewing evidence, managing consultations, inputting drafting, and securing clearance. 
 
-### What state is remembered
-- **Environmental Issue Status:** Open or Resolved.
-- **Consultation State:** Awaiting, Received, Reviewed.
-- **Clearance Readiness:** Automates sign-off logic for master clearance.
+### How to Run:
+```bash
+cd prototype
+npm install
+npm start
+```
+Then navigate to `http://localhost:3000` in your browser.
+
+### How to Demo the Flow:
+**Initial state:** The case is blocked, waiting on Environmental clearance.
+
+1. Start at the **DCO Case Workspace**. Observe the red banner noting clearance is blocked. Click through to the **Env Review Workspace**.
+2. Notice there is 1 blocking issue on the dashboard. Click on **ENV-ISS-001 (Habitats)** to open the Issue Detail screen.
+3. Observe the "Linked Evidence" is Unreviewed and "Linked Consultation" is Adequacy Pending. Try to click "Resolve Issue" natively—it is blocked!
+4. Click **"View Evidence"**. Open the Habitats Reg Assessment. Click **"Mark Evidence as Reviewed"**. Click **"Back to Issue"**. Notice the Evidence status is now green/Reviewed.
+5. Click **"View Consultation"** from the issue detail screen. Select **"✅ Sufficient"** on the adequacy assessment. Notice the status immediately leaps to "Received & Reviewed".
+6. Click **"Back to Issue"**. Since Evidence is reviewed and Adequacy is Sufficient, you can now hit the green **"Resolve Issue"** button natively!
+7. Navigate back to the **Env Review Workspace**. The issue is resolved, but we aren't completely done... you still need to submit the drafting.
+8. Click **"Open Drafting Page"** on the workspace. Type some text and click **"Submit Drafting"**.
+9. Click **"View Env Readiness"**. Because drafting is submitted, consultation adequacy achieved, the issue resolved, and evidence checked, the clearance checklist is 100% complete! Click **"Sign-off Env Clearance"**.
+10. You will be routed back to the main **DCO Case Workspace** natively! The red banner is instantly replaced with a green banner denoting master case clearance is now unlocked!
+
+### What State Changes are Supported:
+- **Evidence Review Toggle:** Boolean status connecting D&E views to specific issues.
+- **Consultation Adequacy Dropdown/Selection:** Explicit progression metrics ("Pending", "Insufficient", "Partially Sufficient", "Sufficient").
+- **Issue Workflow Protection:** Issues can only be moved to 'Resolved' iff linked Consultation and Evidence components validate fully first.
+- **Textual Record Validation:** Tracking "report drafting submitted/not submitted".
+- **Nested Signoffs:** "Env Clearance" rolls directly up to unblock "Master Case Clearance".
+
+*(If you ever get stuck, just press the red **Reset Journey State** button at the top!)*
