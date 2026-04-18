@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DESNZ CPO — Journey 1 Prototype</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#1b1b1b;background:#f3f2f2;padding:16px}
+h1{font-size:20px;font-weight:600;color:#1b1b1b;margin-bottom:4px}
+.intro{font-size:13px;color:#5a5a5a;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+.screen-nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.nav-btn{padding:5px 12px;font-size:12px;border-radius:4px;border:1px solid #c9c7c5;background:#fff;color:#1b1b1b;cursor:pointer;font-family:inherit}
+.nav-btn:hover{background:#f3f2f2}
+.nav-btn.active{background:#0070d2;border-color:#0070d2;color:#fff;font-weight:500}
+.sf-shell{background:#f3f2f2;border:1px solid #dddbda;border-radius:8px;overflow:hidden}
+.sf-topbar{background:#0070d2;display:flex;align-items:center;gap:10px;padding:6px 12px;min-height:36px}
+.sf-topbar-app{color:#fff;font-size:12px;font-weight:500}
+.sf-topbar-search{background:rgba(255,255,255,0.15);border:none;border-radius:4px;color:#fff;padding:4px 10px;font-size:12px;width:200px}
+.sf-topbar-search::placeholder{color:rgba(255,255,255,0.7)}
+.sf-topbar-icons{margin-left:auto;display:flex;gap:8px}
+.sf-topbar-icon{width:20px;height:20px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;text-align:center}
+.sf-tabbar{background:#f3f2f2;border-bottom:1px solid #dddbda;display:flex;align-items:center;padding:0 8px;overflow-x:auto}
+.sf-tabbar-tab{padding:6px 14px;font-size:11px;color:#5a5a5a;white-space:nowrap;border-bottom:2px solid transparent;cursor:pointer}
+.sf-tabbar-tab.active{color:#0070d2;border-bottom-color:#0070d2;font-weight:500}
+.tab-close{opacity:.5;font-size:10px;margin-left:4px}
+.sf-page-header{background:#fff;border-bottom:1px solid #dddbda;padding:10px 16px}
+.sf-page-header h1{font-size:18px;font-weight:500;color:#1b1b1b;display:flex;align-items:center;gap:8px}
+.sf-obj-icon{width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;flex-shrink:0}
+.sf-obj-icon.blue{background:#0070d2}.sf-obj-icon.green{background:#2e844a}.sf-obj-icon.red{background:#ba0517}.sf-obj-icon.purple{background:#7f8de1}.sf-obj-icon.amber{background:#ba6400}
+.sf-highlights{background:#fff;border-bottom:1px solid #dddbda;padding:10px 16px;display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+.sf-highlight-field .hf-label{font-size:10px;color:#5a5a5a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.sf-highlight-field .hf-value{font-size:13px;font-weight:500;color:#1b1b1b}
+.hf-value.link{color:#0070d2;cursor:pointer}.hf-value.status-valid{color:#2e844a;background:#eaf5ea;padding:1px 8px;border-radius:10px;font-size:11px;display:inline-block}.hf-value.status-review{color:#ba6400;background:#fff8ed;padding:1px 8px;border-radius:10px;font-size:11px;display:inline-block}.hf-value.status-risk{color:#ba0517;background:#fef1ee;padding:1px 8px;border-radius:10px;font-size:11px;display:inline-block}.hf-value.status-gray{color:#5a5a5a;background:#e8e6e4;padding:1px 8px;border-radius:10px;font-size:11px;display:inline-block}
+.sf-path-bar{background:#f3f2f2;border-bottom:1px solid #dddbda;padding:8px 16px;display:flex;align-items:center;overflow-x:auto;gap:2px}
+.sf-path-node{padding:5px 10px;font-size:11px;color:#5a5a5a;white-space:nowrap;cursor:pointer}
+.sf-path-node.done{color:#2e844a}.sf-path-node.active{color:#0070d2;font-weight:600}
+.sf-path-arrow{font-size:14px;color:#c9c7c5;padding:0 2px}
+.sf-layout{display:flex;align-items:flex-start}
+.sf-main{flex:1;min-width:0;padding:12px 16px;border-right:1px solid #dddbda}
+.sf-sidebar{width:250px;flex-shrink:0;padding:12px;background:#f8f7f6}
+.sf-tab-row{display:flex;border-bottom:1px solid #dddbda;margin-bottom:12px;overflow-x:auto}
+.sf-tab{padding:6px 14px;font-size:12px;color:#5a5a5a;border-bottom:2px solid transparent;white-space:nowrap}
+.sf-tab.active{color:#0070d2;border-bottom-color:#0070d2;font-weight:500}
+.sf-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:4px;font-size:12px;cursor:pointer;border:1px solid #c9c7c5;background:#fff;color:#1b1b1b;white-space:nowrap;font-family:inherit}
+.sf-btn.primary{background:#0070d2;border-color:#0070d2;color:#fff}.sf-btn.destructive{background:#ba0517;border-color:#ba0517;color:#fff}.sf-btn.success{background:#2e844a;border-color:#2e844a;color:#fff}
+.sf-btn-group{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.sf-btn-group.col{flex-direction:column}
+.sf-field-group{background:#fff;border:1px solid #dddbda;border-radius:6px;padding:10px 12px;margin-bottom:10px}
+.sf-field-group-title{font-size:11px;font-weight:600;color:#5a5a5a;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #dddbda;text-transform:uppercase;letter-spacing:.04em}
+.sf-fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sf-field .f-label{font-size:10px;color:#5a5a5a;margin-bottom:2px}
+.sf-field .f-value{font-size:12px;color:#1b1b1b}
+.f-value.link{color:#0070d2;cursor:pointer;text-decoration:underline}
+.f-value.tag-green{color:#2e844a;background:#eaf5ea;padding:1px 6px;border-radius:8px;font-size:11px;display:inline-block}
+.f-value.tag-amber{color:#ba6400;background:#fff8ed;padding:1px 6px;border-radius:8px;font-size:11px;display:inline-block}
+.f-value.tag-red{color:#ba0517;background:#fef1ee;padding:1px 6px;border-radius:8px;font-size:11px;display:inline-block}
+.f-value.tag-blue{color:#0070d2;background:#e8f0fe;padding:1px 6px;border-radius:8px;font-size:11px;display:inline-block}
+.f-value.tag-gray{color:#5a5a5a;background:#f3f2f2;padding:1px 6px;border-radius:8px;font-size:11px;display:inline-block}
+.sf-related-list{background:#fff;border:1px solid #dddbda;border-radius:6px;margin-bottom:8px;overflow:hidden}
+.sf-rl-header{display:flex;align-items:center;padding:7px 10px;border-bottom:1px solid #dddbda;background:#f8f7f6;gap:6px}
+.sf-rl-header .rl-title{font-size:11px;font-weight:600;color:#1b1b1b;flex:1}
+.sf-rl-header .rl-count{font-size:10px;color:#5a5a5a;background:#e8e6e4;padding:1px 6px;border-radius:8px}
+.sf-rl-header .rl-btn{font-size:10px;color:#0070d2;cursor:pointer}
+.sf-rl-row{display:flex;align-items:center;padding:6px 10px;border-bottom:1px solid #f3f2f2;gap:8px;font-size:11px}
+.sf-rl-row:last-child{border-bottom:none}
+.sf-rl-row .rl-name{color:#0070d2;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.sf-rl-row .rl-meta{color:#5a5a5a;font-size:10px;white-space:nowrap}
+.sf-banner{padding:8px 12px;border-radius:6px;font-size:12px;margin-bottom:10px;display:flex;gap:8px;align-items:flex-start}
+.sf-banner.info{background:#e8f0fe;color:#0070d2;border:1px solid #b3c9f5}
+.sf-banner.warn{background:#fff8ed;color:#ba6400;border:1px solid #f0c070}
+.sf-banner.error{background:#fef1ee;color:#ba0517;border:1px solid #f5bcb0}
+.sf-banner.success{background:#eaf5ea;color:#2e844a;border:1px solid #9bcca4}
+.sf-deadline-card{background:#fff;border:1px solid #dddbda;border-radius:6px;padding:10px;margin-bottom:8px}
+.sf-deadline-card.risk{border-left:3px solid #ba0517}.sf-deadline-card.warn{border-left:3px solid #ba6400}.sf-deadline-card.ok{border-left:3px solid #2e844a}
+.sf-deadline-card .dc-label{font-size:10px;color:#5a5a5a;margin-bottom:2px}
+.sf-deadline-card .dc-value{font-size:13px;font-weight:600;color:#1b1b1b}
+.dc-remaining.overdue{font-size:11px;color:#ba0517;font-weight:600}.dc-remaining.warn{font-size:11px;color:#ba6400}.dc-remaining.ok{font-size:11px;color:#2e844a}
+.sf-owner-card{background:#fff;border:1px solid #dddbda;border-radius:6px;padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.sf-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+.oc-name{font-size:12px;font-weight:500;color:#1b1b1b}.oc-role{font-size:10px;color:#5a5a5a}
+.sf-actions-panel{margin-bottom:12px}
+.sf-actions-panel .ap-title{font-size:10px;font-weight:600;color:#5a5a5a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.sf-activity{background:#fff;border:1px solid #dddbda;border-radius:6px;overflow:hidden;margin-bottom:10px}
+.act-header{background:#f8f7f6;border-bottom:1px solid #dddbda;padding:6px 10px;font-size:11px;font-weight:600;color:#1b1b1b}
+.act-item{padding:8px 10px;border-bottom:1px solid #f3f2f2;display:flex;gap:8px}
+.act-item:last-child{border-bottom:none}
+.act-icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;color:#fff;margin-top:1px}
+.act-icon.task{background:#0070d2}.act-icon.email{background:#2e844a}.act-icon.check{background:#2e844a}
+.act-body .act-title{font-size:12px;color:#1b1b1b;font-weight:500}
+.act-body .act-meta{font-size:10px;color:#5a5a5a;margin-top:2px}
+.sf-textarea-mock{background:#f8f7f6;border:1px solid #dddbda;border-radius:6px;padding:8px 10px;font-size:12px;color:#9b9b9b;min-height:56px;margin-bottom:8px;font-style:italic}
+.sf-checkbox-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:12px;color:#1b1b1b;border-bottom:1px solid #f3f2f2}
+.sf-checkbox-row:last-child{border-bottom:none}
+.sf-checkbox{width:14px;height:14px;border:1px solid #c9c7c5;border-radius:2px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;color:#2e844a;flex-shrink:0;margin-top:1px}
+.sf-checkbox.checked{background:#2e844a;color:#fff;border-color:#2e844a}
+.sf-list-table{width:100%;border-collapse:collapse;font-size:12px}
+.sf-list-table th{background:#f8f7f6;padding:6px 8px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#5a5a5a;border-bottom:1px solid #dddbda;white-space:nowrap}
+.sf-list-table td{padding:7px 8px;border-bottom:1px solid #f3f2f2;color:#1b1b1b;vertical-align:middle}
+.sf-list-table tr:hover td{background:#f3f2f2}
+.td-link{color:#0070d2;cursor:pointer}
+.sf-progress-bar{height:6px;background:#f3f2f2;border-radius:3px;overflow:hidden;margin-bottom:4px}
+.pb-fill{height:100%;background:#0070d2;border-radius:3px;transition:width 0.3s}
+.doc-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #f3f2f2;font-size:12px}
+.doc-icon{width:22px;height:22px;background:#e8f0fe;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#0070d2;flex-shrink:0}
+.rag{display:inline-block;width:12px;height:12px;border-radius:50%}
+.rag.red{background:#ba0517}.rag.amber{background:#ba6400}.rag.green{background:#2e844a}.rag.gray{background:#9b9b9b}
+
+.screen-label{font-size:11px;font-weight:600;color:#5a5a5a;text-transform:uppercase;letter-spacing:.08em;padding:8px 16px;background:#e8e6e4;border-bottom:1px solid #dddbda;display:flex;justify-content:space-between;align-items:center}
+.screen{display:none}
+.screen.active{display:block}
+</style>
+</head>
+<body>
+<h1>DESNZ CPO — Stateful Journey Prototype</h1>
+<div class="intro">
+    <div>Case Officer Journey: Move a case from <b>Validation</b> through to <b>Consultation</b>, <b>Objections</b>, and <b>Decision/Closure</b>. Actions are remembered.</div>
+    <button class="sf-btn destructive" onclick="resetState()">Reset State</button>
+</div>
+
+<div class="screen-nav">
+  <button class="nav-btn active" id="btn_s0" onclick="navTo('s0')">1. Queue</button>
+  <button class="nav-btn" id="btn_s1" onclick="navTo('s1')">2. Case record</button>
+  <button class="nav-btn" id="btn_s4" onclick="navTo('s4')">3. App Review / Validation</button>
+  <button class="nav-btn" id="btn_s5" onclick="navTo('s5')">4. RFI Workspace</button>
+  <button class="nav-btn" id="btn_s6" onclick="navTo('s6')">5. Consultation</button>
+  <button class="nav-btn" id="btn_s7" onclick="navTo('s7')">6. Objections</button>
+  <button class="nav-btn" id="btn_s8" onclick="navTo('s8')">7. Decision & Pub.</button>
+</div>
+
+<!-- =======================
+     S0: QUEUE 
+     ======================= -->
+<div class="sf-shell screen active" id="s0">
+  <div class="screen-label"><span>Screen 1 — CPO case queue / list view</span></div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; CPO Case Management</span><input class="sf-topbar-search" placeholder="Search cases, applicants..."></div>
+  <div class="sf-tabbar"><div class="sf-tabbar-tab active">CPO Cases</div><div class="sf-tabbar-tab">My Tasks</div></div>
+  <div style="padding:12px 16px;background:#fff;border-bottom:1px solid #dddbda">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div class="sf-obj-icon blue">C</div>
+      <div><div style="font-size:16px;font-weight:600;color:#1b1b1b">All Active Cases</div></div>
+    </div>
+  </div>
+  <div style="padding:0 16px 16px;overflow-x:auto;background:#fff">
+    <table class="sf-list-table" style="margin-top:10px">
+      <thead><tr><th style="width:24px"></th><th>CPO Ref</th><th>Applicant</th><th>Project Name</th><th>Stage</th><th>RAG</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr onclick="navTo('s1')" style="background:#fef1ee">
+          <td><input type="checkbox"></td>
+          <td class="td-link" style="font-weight:bold">CPO-2026-0041</td>
+          <td>National Grid ESO</td>
+          <td>Bramford-Twinstead 400kV</td>
+          <td id="q_stage"><span class="f-value tag-amber">Validation</span></td>
+          <td id="q_rag"><span class="rag red"></span></td>
+          <td class="td-link">Open Case</td>
+        </tr>
+        <tr>
+          <td><input type="checkbox"></td><td class="td-link">CPO-2026-0038</td><td>SP Manweb plc</td><td>Wrexham Substation</td>
+          <td><span class="f-value tag-blue">Formal App</span></td><td><span class="rag amber"></span></td><td class="td-link">Open</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- =======================
+     S1: CASE RECORD 
+     ======================= -->
+<div class="sf-shell screen" id="s1">
+  <div class="screen-label"><span>Screen 2 — CPO case record page</span><button class="nav-btn" onclick="navTo('s0')">&#8592; Back to Queue</button></div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; CPO Case Management</span><input class="sf-topbar-search" placeholder="Search..."></div>
+  <div class="sf-tabbar"><div class="sf-tabbar-tab active">CPO-2026-0041</div></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon blue">C</div>CPO-2026-0041 &mdash; Bramford-Twinstead 400kV</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Applicant</div><div class="hf-value">National Grid ESO</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Current Stage</div><div class="hf-value" id="cr_stage"><span class="f-value tag-amber">Validation</span></div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Deadline</div><div class="hf-value status-risk">12 Apr 2026</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">RAG Status</div><div class="hf-value" id="cr_rag"><span class="status-risk">Red</span></div></div>
+    <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="sf-btn primary" onclick="navTo('s4')" id="btn_enter_val">Enter Validation Workspace &#8594;</button>
+        <button class="sf-btn" id="btn_advance_stage" style="display:none" onclick="advanceStage()">Advance Stage</button>
+    </div>
+  </div>
+  <div class="sf-path-bar">
+    <span class="sf-path-node done">&#10003; Pre-App</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node done">&#10003; Payment</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node done">&#10003; Formal App</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node active" id="pb_val" onclick="navTo('s4')">&#9679; Validation</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node" id="pb_cons" onclick="navTo('s6')">Consultation</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node" id="pb_obj" onclick="navTo('s7')">Objections</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node" id="pb_dec" onclick="navTo('s8')">Decision</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node" id="pb_closed">Closed</span>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Summary & Case Health</div>
+        <div id="cr_msg" class="sf-banner error">&#9888; Validation blocked: 2 open RFIs missing mandatory documents.</div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Mandatory Document Checklist rollup</div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox checked">&#10003;</div><span style="flex:1">Order maps</span><span class="f-value tag-green" style="margin-left:auto">Received</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox checked">&#10003;</div><span style="flex:1">Statement of Reasons</span><span class="f-value tag-green" style="margin-left:auto">Received</span></div>
+        <div class="sf-checkbox-row">
+            <div class="sf-checkbox" id="chk_cr_es"></div>
+            <span style="flex:1" id="lbl_cr_es">Environmental Statement <span style="color:#ba0517">— RFI-002 awaiting response</span></span>
+            <span class="f-value tag-red" id="lbl2_cr_es" style="margin-left:auto">Outstanding</span>
+        </div>
+        <div class="sf-checkbox-row">
+            <div class="sf-checkbox" id="chk_cr_na"></div>
+            <span style="flex:1" id="lbl_cr_na">Notice affidavit <span style="color:#ba0517">— RFI-003 awaiting response</span></span>
+            <span class="f-value tag-red" id="lbl2_cr_na" style="margin-left:auto">Outstanding</span>
+        </div>
+      </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-related-list">
+        <div class="sf-rl-header"><span class="rl-title">Open RFIs</span><span class="rl-count" id="cr_rfi_count">2</span></div>
+        <div id="cr_rfi_2_wrap" class="sf-rl-row" onclick="navTo('s5')"><span class="rl-name">RFI-002 — Env Statement</span><span class="rl-meta"><span class="f-value tag-red">Awaiting</span></span></div>
+        <div id="cr_rfi_3_wrap" class="sf-rl-row"><span class="rl-name">RFI-003 — Affidavit</span><span class="rl-meta"><span class="f-value tag-amber">Awaiting</span></span></div>
+        <div id="cr_rfi_empty" style="display:none; padding:10px; font-size:11px; color:#5a5a5a">No open RFIs.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =======================
+     S4: VALIDATION WORKSPACE 
+     ======================= -->
+<div class="sf-shell screen" id="s4">
+  <div class="screen-label"><span>Screen 3 — Validation Workspace</span><button class="nav-btn" onclick="navTo('s1')">&#8592; Back to Case</button></div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Case Validation</span></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon blue">V</div>Formal Application Validation — CPO-2026-0041</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Validation status</div><div class="hf-value" id="val_status"><span class="status-review">In progress</span></div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Open RFIs</div><div class="hf-value" id="val_open_rfis"><span class="status-risk">2 open</span></div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Completeness</div><div class="hf-value" id="val_completeness">5 / 7 mandatory</div></div>
+    <div style="margin-left:auto">
+        <button class="sf-btn success" id="btn_mark_valid" disabled onclick="advanceStage()">Mark Valid & Advance Stage &#8594;</button>
+    </div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div id="vw_banner" class="sf-banner error">&#9888; 2 mandatory documents outstanding — block on validation until RFIs resolved</div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Mandatory document validation checklist</div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox checked">&#10003;</div><span style="flex:1">Made Compulsory Purchase Order</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox checked">&#10003;</div><span style="flex:1">Order maps</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox checked">&#10003;</div><span style="flex:1">Statement of Reasons</span></div>
+        
+        <div class="sf-checkbox-row">
+            <div class="sf-checkbox" id="chk_vw_es"></div>
+            <span style="flex:1" id="lbl_vw_es">Environmental Statement <span style="color:#ba0517">— RFI-002 awaiting response</span></span>
+            <button class="sf-btn" onclick="navTo('s5')">View RFI-002</button>
+            <span class="f-value tag-red" id="lbl2_vw_es" style="margin-left:8px; width:75px; text-align:center">Outstanding</span>
+        </div>
+        <div class="sf-checkbox-row">
+            <div class="sf-checkbox" id="chk_vw_na"></div>
+            <span style="flex:1" id="lbl_vw_na">Notice affidavit <span style="color:#ba0517">— RFI-003 awaiting response</span></span>
+            <button class="sf-btn" onclick="resolveRFI3()" id="btn_res3">Simulate Resolve</button>
+            <span class="f-value tag-red" id="lbl2_vw_na" style="margin-left:8px; width:75px; text-align:center">Outstanding</span>
+        </div>
+      </div>
+    </div>
+    <div class="sf-sidebar">
+      <div style="background:#fff;border:1px solid #dddbda;border-radius:6px;padding:10px;margin-bottom:8px">
+        <div style="font-size:10px;color:#5a5a5a;margin-bottom:4px">Document completeness</div>
+        <div class="sf-progress-bar"><div class="pb-fill" id="val_pb" style="width:71%"></div></div>
+        <div style="font-size:11px;color:#5a5a5a" id="val_pb_lbl">5 of 7 mandatory docs (71%)</div>
+      </div>
+      <div class="sf-related-list">
+        <div class="sf-rl-header"><span class="rl-title">Open RFIs</span><span class="rl-count" id="vw_rfi_count">2</span></div>
+        <div id="vw_rfi2_row" class="sf-rl-row" onclick="navTo('s5')"><span class="rl-name">RFI-002 — Env Statement</span><span class="rl-meta"><span class="tag-red">Awaiting</span></span></div>
+        <div id="vw_rfi3_row" class="sf-rl-row"><span class="rl-name">RFI-003 — Notice affidavit</span><span class="rl-meta"><span class="tag-amber">Awaiting</span></span></div>
+      </div>
+      <div id="vw_activity"></div>
+    </div>
+  </div>
+</div>
+
+<!-- =======================
+     S5: RFI WORKSPACE 
+     ======================= -->
+<div class="sf-shell screen" id="s5">
+  <div class="screen-label"><span>Screen 4 — RFI Workspace</span><button class="nav-btn" onclick="navTo('s4')">&#8592; Back to Validation</button></div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; RFI Record</span></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon amber" id="rfi_icon">?</div>RFI-002 — Environmental Statement</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Status</div><div class="hf-value" id="rfi_status"><span class="status-risk">Awaiting response</span></div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Response due</div><div class="hf-value">15 Apr 2026</div></div>
+    <div style="margin-left:auto"><button class="sf-btn success" id="btn_rfi_resolve" onclick="resolveRFI2()">Mark Resolved &#10003;</button></div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div id="rfi_banner" class="sf-banner info">No response received via portal yet. You can manually bypass to simulate receiving and resolving this document.</div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">RFI Request</div>
+        <p style="font-size:12px; line-height: 1.5; background:#f8f7f6; padding:10px; border-radius:4px">
+            We note that no Environmental Statement has been provided. Under the EIA Regs 2017, an Environmental Statement is required. Please submit within 21 days.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =======================
+     S6: CONSULTATION 
+     ======================= -->
+<div class="sf-shell screen" id="s6">
+  <div class="screen-label"><span>Screen 5 — Consultation Workspace</span><button class="nav-btn" onclick="navTo('s1')">&#8592; Back to Case</button></div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Consultation Tracker</span></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon green">S</div>Consultation Tracker — CPO-2026-0041</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Consultation status</div><div class="hf-value"><span class="status-valid">Active</span></div></div>
+    <div style="margin-left:auto"><button class="sf-btn primary" onclick="advanceStage()">Finish Consultation -> Objections</button></div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Parties</div>
+        <table class="sf-list-table">
+          <thead><tr><th>Party</th><th>Notified</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Environment Agency</td><td>20 Apr 2026</td><td><span class="tag-amber">Awaiting</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =======================
+     S7: OBJECTIONS 
+     ======================= -->
+<div class="sf-shell screen" id="s7">
+  <div class="screen-label"><span>Screen 6 — Objections & Inquiry</span><button class="nav-btn" onclick="navTo('s1')">&#8592; Back to Case</button></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon red">!</div>Objections & Inquiry — CPO-2026-0041</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Inquiry Appointed</div><div class="hf-value"><span class="status-review">Yes</span></div></div>
+    <div style="margin-left:auto"><button class="sf-btn primary" onclick="advanceStage()">Close Inquiry -> Move to Decision</button></div>
+  </div>
+  <div class="sf-layout"><div class="sf-main"><div class="sf-banner warn">Inquiry ongoing.</div></div></div>
+</div>
+
+<!-- =======================
+     S8: DECISION 
+     ======================= -->
+<div class="sf-shell screen" id="s8">
+  <div class="screen-label"><span>Screen 7 — Decision & Publication</span><button class="nav-btn" onclick="navTo('s1')">&#8592; Back to Case</button></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon purple">D</div>Decision Workspace — CPO-2026-0041</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Decision Target</div><div class="hf-value">30 May 2026</div></div>
+    <div style="margin-left:auto"><button class="sf-btn success" onclick="closeCase()">Publish Decision & Close Case</button></div>
+  </div>
+  <div class="sf-layout"><div class="sf-main"><div class="sf-banner info">Inspector report received. Awaiting ministerial sign-off.</div></div></div>
+</div>
+
+<script>
+let state = {
+    rfi2: 'Open', // 'Resolved'
+    rfi3: 'Open', // 'Resolved'
+    stage: 'Validation', // 'Validation', 'Consultation', 'Objections', 'Decision', 'Closed'
+    activityLog: []
+};
+
+function initState() {
+    let saved = localStorage.getItem('cpo_journey_state');
+    if(saved) {
+        try { state = JSON.parse(saved); } catch(e){}
+    }
+    updateUI();
+}
+
+function saveState() {
+    localStorage.setItem('cpo_journey_state', JSON.stringify(state));
+    updateUI();
+}
+
+function resetState() {
+    localStorage.removeItem('cpo_journey_state');
+    state = { rfi2:'Open', rfi3:'Open', stage:'Validation', activityLog:[] };
+    updateUI();
+    navTo('s0');
+}
+
+function logActivity(msg) {
+    state.activityLog.unshift(msg);
+    saveState();
+}
+
+function navTo(id) {
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    let btn = document.getElementById('btn_'+id);
+    if(btn) btn.classList.add('active');
+    
+    window.scrollTo(0,0);
+}
+
+function resolveRFI2() {
+    state.rfi2 = 'Resolved';
+    logActivity('RFI-002 resolved and Environmental Statement accepted.');
+    saveState();
+}
+
+function resolveRFI3() {
+    state.rfi3 = 'Resolved';
+    logActivity('RFI-003 resolved and Notice Affidavit accepted.');
+    saveState();
+}
+
+function advanceStage() {
+    if(state.stage === 'Validation') state.stage = 'Consultation';
+    else if(state.stage === 'Consultation') state.stage = 'Objections';
+    else if(state.stage === 'Objections') state.stage = 'Decision';
+    
+    logActivity('Stage advanced to ' + state.stage);
+    saveState();
+    
+    if(state.stage === 'Consultation') navTo('s6');
+    if(state.stage === 'Objections') navTo('s7');
+    if(state.stage === 'Decision') navTo('s8');
+}
+
+function closeCase() {
+    state.stage = 'Closed';
+    logActivity('Case closed and Decision published.');
+    saveState();
+    alert('Case successfully published and closed!');
+    navTo('s0');
+}
+
+function updateUI() {
+    // 1. Calculations
+    let openRfis = (state.rfi2 === 'Open' ? 1 : 0) + (state.rfi3 === 'Open' ? 1 : 0);
+    let completeness = 5 + (state.rfi2 === 'Resolved' ? 1 : 0) + (state.rfi3 === 'Resolved' ? 1 : 0);
+    let valReady = (completeness === 7);
+    
+    let rag = 'red';
+    if(state.stage === 'Closed') rag = 'gray';
+    else if(valReady || state.stage !== 'Validation') rag = 'green';
+    else if(completeness === 6) rag = 'amber';
+    
+    // Updates
+    // -- Queue
+    let pStage = `<span class="tag-amber">${state.stage}</span>`;
+    if(state.stage === 'Closed') pStage = `<span class="tag-gray">Closed</span>`;
+    else if(state.stage !== 'Validation') pStage = `<span class="tag-blue">${state.stage}</span>`;
+    document.getElementById('q_stage').innerHTML = pStage;
+    document.getElementById('q_rag').innerHTML = `<span class="rag ${rag}"></span>`;
+    
+    // -- Case Record
+    document.getElementById('cr_stage').innerHTML = pStage;
+    document.getElementById('cr_rag').innerHTML = `<span class="status-${rag==='gray'?'valid':(rag==='red'?'risk':'valid')}">${rag==='red'?'Blocked':rag==='amber'?'At Risk':'On Track'}</span>`;
+    
+    document.getElementById('cr_rfi_count').innerText = openRfis;
+    if(state.rfi2 === 'Resolved') document.getElementById('cr_rfi_2_wrap').style.display='none'; else document.getElementById('cr_rfi_2_wrap').style.display='flex';
+    if(state.rfi3 === 'Resolved') document.getElementById('cr_rfi_3_wrap').style.display='none'; else document.getElementById('cr_rfi_3_wrap').style.display='flex';
+    if(openRfis === 0) document.getElementById('cr_rfi_empty').style.display='block'; else document.getElementById('cr_rfi_empty').style.display='none';
+    
+    document.getElementById('chk_cr_es').className = `sf-checkbox ${state.rfi2==='Resolved'?'checked':''}`;
+    document.getElementById('chk_cr_es').innerHTML = state.rfi2==='Resolved'?'&#10003;':'';
+    document.getElementById('lbl_cr_es').innerHTML = state.rfi2==='Resolved'?'Environmental Statement':`Environmental Statement <span style="color:#ba0517">— RFI-002 awaiting response</span>`;
+    document.getElementById('lbl2_cr_es').className = state.rfi2==='Resolved'?'f-value tag-green':'f-value tag-red';
+    document.getElementById('lbl2_cr_es').innerText = state.rfi2==='Resolved'?'Received':'Outstanding';
+    
+    document.getElementById('chk_cr_na').className = `sf-checkbox ${state.rfi3==='Resolved'?'checked':''}`;
+    document.getElementById('chk_cr_na').innerHTML = state.rfi3==='Resolved'?'&#10003;':'';
+    document.getElementById('lbl_cr_na').innerHTML = state.rfi3==='Resolved'?'Notice affidavit':`Notice affidavit <span style="color:#ba0517">— RFI-003 awaiting response</span>`;
+    document.getElementById('lbl2_cr_na').className = state.rfi3==='Resolved'?'f-value tag-green':'f-value tag-red';
+    document.getElementById('lbl2_cr_na').innerText = state.rfi3==='Resolved'?'Received':'Outstanding';
+    
+    if(state.stage !== 'Validation') {
+        document.getElementById('cr_msg').className = 'sf-banner success';
+        document.getElementById('cr_msg').innerHTML = `&#10003; Case is progressing nicely in ${state.stage}.`;
+        document.getElementById('btn_advance_stage').style.display = 'inline-flex';
+        document.getElementById('btn_enter_val').style.display = 'none';
+        if(state.stage === 'Closed') document.getElementById('btn_advance_stage').style.display = 'none';
+    } else {
+        document.getElementById('cr_msg').className = valReady ? 'sf-banner success' : 'sf-banner error';
+        document.getElementById('cr_msg').innerHTML = valReady ? '&#10003; Validation complete. Ready to advance.' : `&#9888; Validation blocked: ${openRfis} open RFIs missing mandatory documents.`;
+        document.getElementById('btn_advance_stage').style.display = 'none';
+        document.getElementById('btn_enter_val').style.display = 'inline-flex';
+    }
+    
+    // Path bar
+    ['val','cons','obj','dec','closed'].forEach(s => {
+        let n = document.getElementById('pb_'+s);
+        if(!n) return;
+        n.className = 'sf-path-node';
+    });
+    if(state.stage === 'Validation') document.getElementById('pb_val').className = 'sf-path-node active';
+    else if(state.stage === 'Consultation') { document.getElementById('pb_val').className = 'sf-path-node done'; document.getElementById('pb_cons').className = 'sf-path-node active'; }
+    else if(state.stage === 'Objections') { document.getElementById('pb_val').className = 'sf-path-node done'; document.getElementById('pb_cons').className = 'sf-path-node done'; document.getElementById('pb_obj').className = 'sf-path-node active'; }
+    else if(state.stage === 'Decision') { document.getElementById('pb_val').className = 'sf-path-node done'; document.getElementById('pb_cons').className = 'sf-path-node done'; document.getElementById('pb_obj').className = 'sf-path-node done'; document.getElementById('pb_dec').className = 'sf-path-node active'; }
+    else if(state.stage === 'Closed') { document.getElementById('pb_val').className = 'sf-path-node done'; document.getElementById('pb_cons').className = 'sf-path-node done'; document.getElementById('pb_obj').className = 'sf-path-node done'; document.getElementById('pb_dec').className = 'sf-path-node done'; document.getElementById('pb_closed').className = 'sf-path-node done'; }
+    
+    
+    // -- Validation Workspace
+    document.getElementById('val_open_rfis').innerHTML = openRfis===0 ? `<span class="tag-gray">0 open</span>` : `<span class="status-risk">${openRfis} open</span>`;
+    document.getElementById('val_completeness').innerText = `${completeness} / 7 mandatory`;
+    document.getElementById('val_pb').style.width = Math.floor((completeness/7)*100) + '%';
+    document.getElementById('val_pb_lbl').innerText = `${completeness} of 7 mandatory docs (${Math.floor((completeness/7)*100)}%)`;
+    
+    document.getElementById('chk_vw_es').className = `sf-checkbox ${state.rfi2==='Resolved'?'checked':''}`;
+    document.getElementById('chk_vw_es').innerHTML = state.rfi2==='Resolved'?'&#10003;':'';
+    document.getElementById('lbl_vw_es').innerHTML = state.rfi2==='Resolved'?'Environmental Statement':`Environmental Statement <span style="color:#ba0517">— RFI-002 awaiting response</span>`;
+    document.getElementById('lbl2_vw_es').className = state.rfi2==='Resolved'?'f-value tag-green':'f-value tag-red';
+    document.getElementById('lbl2_vw_es').innerText = state.rfi2==='Resolved'?'Received':'Outstanding';
+    
+    document.getElementById('chk_vw_na').className = `sf-checkbox ${state.rfi3==='Resolved'?'checked':''}`;
+    document.getElementById('chk_vw_na').innerHTML = state.rfi3==='Resolved'?'&#10003;':'';
+    document.getElementById('lbl_vw_na').innerHTML = state.rfi3==='Resolved'?'Notice affidavit':`Notice affidavit <span style="color:#ba0517">— RFI-003 awaiting response</span>`;
+    document.getElementById('lbl2_vw_na').className = state.rfi3==='Resolved'?'f-value tag-green':'f-value tag-red';
+    document.getElementById('lbl2_vw_na').innerText = state.rfi3==='Resolved'?'Received':'Outstanding';
+    
+    let btnVal = document.getElementById('btn_mark_valid');
+    if(valReady) {
+        btnVal.disabled = false;
+        document.getElementById('vw_banner').className = 'sf-banner success';
+        document.getElementById('vw_banner').innerHTML = '&#10003; All mandatory documents received. Ready to advance to Consultation.';
+    } else {
+        btnVal.disabled = true;
+        document.getElementById('vw_banner').className = 'sf-banner error';
+        document.getElementById('vw_banner').innerHTML = `&#9888; ${openRfis} mandatory documents outstanding — block on validation until RFIs resolved`;
+    }
+    
+    document.getElementById('vw_rfi_count').innerText = openRfis;
+    if(state.rfi2 === 'Resolved') document.getElementById('vw_rfi2_row').style.display='none';
+    if(state.rfi3 === 'Resolved') {
+        document.getElementById('vw_rfi3_row').style.display='none';
+        document.getElementById('btn_res3').style.display='none';
+    }
+    
+    let acts = state.activityLog.map(lg => `<div class="sf-rl-row"><span class="rl-name" style="color:#5a5a5a">${lg}</span></div>`).join('');
+    if(acts.length > 0) document.getElementById('vw_activity').innerHTML = `<div class="sf-related-list"><div class="sf-rl-header"><span class="rl-title">Recent Activity</span></div>${acts}</div>`;
+    
+    // -- RFI Workspace
+    let rfiBanner = document.getElementById('rfi_banner');
+    if(state.rfi2 === 'Resolved') {
+        document.getElementById('rfi_status').innerHTML = `<span class="status-valid">Resolved &#10003;</span>`;
+        document.getElementById('rfi_icon').className = 'sf-obj-icon green';
+        document.getElementById('btn_rfi_resolve').style.display = 'none';
+        rfiBanner.className = 'sf-banner success';
+        rfiBanner.innerHTML = '&#10003; Environmental Statement provided and accepted.';
+    } else {
+        document.getElementById('rfi_status').innerHTML = `<span class="status-risk">Awaiting response</span>`;
+        document.getElementById('rfi_icon').className = 'sf-obj-icon amber';
+        document.getElementById('btn_rfi_resolve').style.display = 'inline-flex';
+        rfiBanner.className = 'sf-banner info';
+        rfiBanner.innerHTML = 'No response received via portal yet. You can manually bypass to simulate receiving and resolving this document.';
+    }
+}
+
+window.onload = initState;
+</script>
+</body>
+</html>

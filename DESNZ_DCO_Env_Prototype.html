@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DESNZ DCO Environmental Case Manager — Prototype</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; color: #1b1b1b; background: #f3f2f2; padding: 16px; }
+h1 { font-size: 20px; font-weight: 600; color: #1b1b1b; margin-bottom: 4px; }
+.intro { font-size: 13px; color: #5a5a5a; margin-bottom: 16px; }
+.screen-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.nav-btn { padding: 5px 12px; font-size: 12px; border-radius: 4px; border: 1px solid #c9c7c5; background: #fff; color: #1b1b1b; cursor: pointer; font-family: inherit; }
+.nav-btn:hover { background: #f3f2f2; }
+.nav-btn.active { background: #0070d2; border-color: #0070d2; color: #fff; font-weight: 500; }
+.sf-shell { background: #f3f2f2; border: 1px solid #dddbda; border-radius: 8px; overflow: hidden; }
+.sf-topbar { background: #0070d2; display: flex; align-items: center; gap: 10px; padding: 6px 12px; min-height: 36px; }
+.sf-topbar-app { color: #fff; font-size: 12px; font-weight: 500; }
+.sf-topbar-search { background: rgba(255,255,255,0.15); border: none; border-radius: 4px; color: #fff; padding: 4px 10px; font-size: 12px; width: 250px; }
+.sf-topbar-search::placeholder { color: rgba(255,255,255,0.7); }
+.sf-topbar-icons { margin-left: auto; display: flex; gap: 8px; }
+.sf-topbar-icon { width: 20px; height: 20px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; text-align: center; }
+.sf-tabbar { background: #f3f2f2; border-bottom: 1px solid #dddbda; display: flex; align-items: center; padding: 0 8px; overflow-x: auto; }
+.sf-tabbar-tab { padding: 6px 14px; font-size: 11px; color: #5a5a5a; white-space: nowrap; border-bottom: 2px solid transparent; cursor: pointer; }
+.sf-tabbar-tab.active { color: #0070d2; border-bottom-color: #0070d2; font-weight: 500; }
+.tab-close { opacity: .5; font-size: 10px; margin-left: 4px; }
+.sf-page-header { background: #fff; border-bottom: 1px solid #dddbda; padding: 10px 16px; }
+.sf-page-header h1 { font-size: 18px; font-weight: 500; color: #1b1b1b; display: flex; align-items: center; gap: 8px; }
+.sf-obj-icon { width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.sf-obj-icon.blue { background: #0070d2; } .sf-obj-icon.green { background: #2e844a; } .sf-obj-icon.red { background: #ba0517; } .sf-obj-icon.purple { background: #7f8de1; } .sf-obj-icon.amber { background: #ba6400; }
+.sf-highlights { background: #fff; border-bottom: 1px solid #dddbda; padding: 10px 16px; display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+.sf-highlight-field .hf-label { font-size: 10px; color: #5a5a5a; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+.sf-highlight-field .hf-value { font-size: 13px; font-weight: 500; color: #1b1b1b; }
+.hf-value.link { color: #0070d2; cursor: pointer; } 
+.hf-value.status-valid { color: #2e844a; background: #eaf5ea; padding: 1px 8px; border-radius: 10px; font-size: 11px; display: inline-block; } 
+.hf-value.status-review { color: #ba6400; background: #fff8ed; padding: 1px 8px; border-radius: 10px; font-size: 11px; display: inline-block; } 
+.hf-value.status-risk { color: #ba0517; background: #fef1ee; padding: 1px 8px; border-radius: 10px; font-size: 11px; display: inline-block; }
+.hf-value.status-gray { color: #5a5a5a; background: #f3f2f2; padding: 1px 8px; border-radius: 10px; font-size: 11px; display: inline-block; }
+.sf-path-bar { background: #f3f2f2; border-bottom: 1px solid #dddbda; padding: 8px 16px; display: flex; align-items: center; overflow-x: auto; gap: 2px; }
+.sf-path-node { padding: 5px 10px; font-size: 11px; color: #5a5a5a; white-space: nowrap; cursor: pointer; }
+.sf-path-node.done { color: #2e844a; } .sf-path-node.active { color: #0070d2; font-weight: 600; }
+.sf-path-arrow { font-size: 14px; color: #c9c7c5; padding: 0 2px; }
+.sf-layout { display: flex; align-items: flex-start; }
+.sf-main { flex: 1; min-width: 0; padding: 12px 16px; border-right: 1px solid #dddbda; }
+.sf-sidebar { width: 250px; flex-shrink: 0; padding: 12px; background: #f8f7f6; }
+.sf-tab-row { display: flex; border-bottom: 1px solid #dddbda; margin-bottom: 12px; overflow-x: auto; }
+.sf-tab { padding: 6px 14px; font-size: 12px; color: #5a5a5a; border-bottom: 2px solid transparent; white-space: nowrap; cursor: pointer; }
+.sf-tab.active { color: #0070d2; border-bottom-color: #0070d2; font-weight: 500; }
+.sf-btn { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; border: 1px solid #c9c7c5; background: #fff; color: #1b1b1b; white-space: nowrap; font-family: inherit; }
+.sf-btn:hover { background: #f3f2f2; }
+.sf-btn.primary { background: #0070d2; border-color: #0070d2; color: #fff; }
+.sf-btn.destructive { background: #ba0517; border-color: #ba0517; color: #fff; }
+.sf-btn.success { background: #2e844a; border-color: #2e844a; color: #fff; }
+.sf-btn-group { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.sf-btn-group.col { flex-direction: column; }
+.sf-field-group { background: #fff; border: 1px solid #dddbda; border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; }
+.sf-field-group-title { font-size: 11px; font-weight: 600; color: #5a5a5a; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #dddbda; text-transform: uppercase; letter-spacing: .04em; }
+.sf-fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sf-field .f-label { font-size: 10px; color: #5a5a5a; margin-bottom: 2px; }
+.sf-field .f-value { font-size: 12px; color: #1b1b1b; }
+.f-value.link { color: #0070d2; cursor: pointer; text-decoration: underline; }
+.f-value.tag-green { color: #2e844a; background: #eaf5ea; padding: 1px 6px; border-radius: 8px; font-size: 11px; display: inline-block; }
+.f-value.tag-amber { color: #ba6400; background: #fff8ed; padding: 1px 6px; border-radius: 8px; font-size: 11px; display: inline-block; }
+.f-value.tag-red { color: #ba0517; background: #fef1ee; padding: 1px 6px; border-radius: 8px; font-size: 11px; display: inline-block; }
+.f-value.tag-blue { color: #0070d2; background: #e8f0fe; padding: 1px 6px; border-radius: 8px; font-size: 11px; display: inline-block; }
+.f-value.tag-gray { color: #5a5a5a; background: #f3f2f2; padding: 1px 6px; border-radius: 8px; font-size: 11px; display: inline-block; }
+.sf-related-list { background: #fff; border: 1px solid #dddbda; border-radius: 6px; margin-bottom: 8px; overflow: hidden; }
+.sf-rl-header { display: flex; align-items: center; padding: 7px 10px; border-bottom: 1px solid #dddbda; background: #f8f7f6; gap: 6px; }
+.sf-rl-header .rl-title { font-size: 11px; font-weight: 600; color: #1b1b1b; flex: 1; }
+.sf-rl-header .rl-count { font-size: 10px; color: #5a5a5a; background: #e8e6e4; padding: 1px 6px; border-radius: 8px; }
+.sf-rl-header .rl-btn { font-size: 10px; color: #0070d2; cursor: pointer; }
+.sf-rl-row { display: flex; align-items: center; padding: 6px 10px; border-bottom: 1px solid #f3f2f2; gap: 8px; font-size: 11px; cursor: pointer; }
+.sf-rl-row:hover { background: #f9f9f9; }
+.sf-rl-row:last-child { border-bottom: none; }
+.sf-rl-row .rl-name { color: #0070d2; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sf-rl-row .rl-meta { color: #5a5a5a; font-size: 10px; white-space: nowrap; }
+.sf-banner { padding: 8px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 10px; display: flex; gap: 8px; align-items: flex-start; }
+.sf-banner.info { background: #e8f0fe; color: #0070d2; border: 1px solid #b3c9f5; }
+.sf-banner.warn { background: #fff8ed; color: #ba6400; border: 1px solid #f0c070; }
+.sf-banner.error { background: #fef1ee; color: #ba0517; border: 1px solid #f5bcb0; }
+.sf-banner.success { background: #eaf5ea; color: #2e844a; border: 1px solid #9bcca4; }
+.sf-deadline-card { background: #fff; border: 1px solid #dddbda; border-radius: 6px; padding: 10px; margin-bottom: 8px; }
+.sf-deadline-card.risk { border-left: 3px solid #ba0517; } .sf-deadline-card.warn { border-left: 3px solid #ba6400; } .sf-deadline-card.ok { border-left: 3px solid #2e844a; } .sf-deadline-card.gray { border-left: 3px solid #5a5a5a; }
+.sf-deadline-card .dc-label { font-size: 10px; color: #5a5a5a; margin-bottom: 2px; }
+.sf-deadline-card .dc-value { font-size: 13px; font-weight: 600; color: #1b1b1b; }
+.dc-remaining.overdue { font-size: 11px; color: #ba0517; font-weight: 600; } .dc-remaining.warn { font-size: 11px; color: #ba6400; } .dc-remaining.ok { font-size: 11px; color: #2e844a; }
+.sf-owner-card { background: #fff; border: 1px solid #dddbda; border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.sf-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; flex-shrink: 0; }
+.oc-name { font-size: 12px; font-weight: 500; color: #1b1b1b; } .oc-role { font-size: 10px; color: #5a5a5a; }
+.sf-actions-panel { margin-bottom: 12px; }
+.sf-actions-panel .ap-title { font-size: 10px; font-weight: 600; color: #5a5a5a; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+.sf-textarea-mock { background: #fff; border: 1px solid #dddbda; border-radius: 4px; padding: 8px 10px; font-size: 12px; color: #1b1b1b; min-height: 56px; margin-bottom: 8px; width: 100%; outline: none; resize: vertical; }
+.sf-checkbox-row { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; font-size: 12px; color: #1b1b1b; border-bottom: 1px solid #f3f2f2; }
+.sf-checkbox-row:last-child { border-bottom: none; }
+.sf-checkbox { width: 14px; height: 14px; border: 1px solid #c9c7c5; border-radius: 2px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #2e844a; flex-shrink: 0; margin-top: 1px; cursor: pointer; }
+.sf-checkbox.checked { background: #2e844a; color: #fff; border-color: #2e844a; }
+.sf-list-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.sf-list-table th { background: #f8f7f6; padding: 6px 8px; text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: #5a5a5a; border-bottom: 1px solid #dddbda; white-space: nowrap; }
+.sf-list-table td { padding: 7px 8px; border-bottom: 1px solid #f3f2f2; color: #1b1b1b; vertical-align: middle; }
+.sf-list-table tr:last-child td { border-bottom: none; }
+.sf-list-table tr:hover td { background: #f3f2f2; cursor: pointer; }
+.td-link { color: #0070d2; text-decoration: underline; cursor: pointer; }
+.RagFlag { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
+.RagFlag.red { background: #ba0517; } .RagFlag.amber { background: #ba6400; } .RagFlag.green { background: #2e844a; }
+.RagFlag.gray { background: #9b9b9b; }
+.screen-label { font-size: 11px; font-weight: 600; color: #5a5a5a; text-transform: uppercase; letter-spacing: .08em; padding: 8px 16px; background: #e8e6e4; border-bottom: 1px solid #dddbda; display: flex; justify-content: space-between; align-items: center; }
+.screen { display: none; }
+.screen.active { display: block; }
+</style>
+</head>
+<body>
+
+<h1>DESNZ DCO Environmental Case Manager — Prototype</h1>
+<p class="intro">
+  A stateful HTML prototype for the DCO Environmental Case Management workflow.<br>
+  Test core scenarios like updating environmental issues, recording consultation reps, and clearing cases.
+</p>
+
+<!-- Prototype Navigation -->
+<div class="screen-nav">
+  <button class="nav-btn active" data-target="dashboard">0. Env Portfolio Dashboard</button>
+  <button class="nav-btn" data-target="case_workspace">1. DCO Case Workspace</button>
+  <button class="nav-btn" data-target="env_review_workspace">2. Env Review Workspace</button>
+  <button class="nav-btn" data-target="document_viewer">3. Document & Evidence</button>
+  <button class="nav-btn" data-target="env_issue_detail">4. Env Issue Detail</button>
+  <button class="nav-btn" data-target="consultation_tracker">5. Consultation Tracker</button>
+  <button class="nav-btn" data-target="drafting_contributions">6. Drafting & Contributions</button>
+  <button class="nav-btn" data-target="clearance_readiness">7. Clearance Readiness</button>
+  <button class="nav-btn destructive" onclick="resetState()" style="margin-left: auto;">Reset State</button>
+</div>
+
+<!-- =========================
+     SCREEN 0: DASHBOARD
+     ========================= -->
+<div class="sf-shell screen active" id="dashboard">
+  <div class="screen-label">
+    <span>Environmental Portfolio Dashboard | User: Env Lead / Senior Reviewer</span>
+  </div>
+  <div class="sf-topbar">
+    <span class="sf-topbar-app">&#9783; DCO Case Management</span>
+    <input class="sf-topbar-search" placeholder="Search..."><div class="sf-topbar-icons"><div class="sf-topbar-icon" style="background:#ba0517" id="dash_alert_badge">3</div></div>
+  </div>
+  <div style="padding:12px 16px;background:#fff;border-bottom:1px solid #dddbda">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <div class="sf-obj-icon purple">&#9783;</div>
+      <div style="font-size:16px;font-weight:600">Environmental Team Dashboard</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
+      <div class="sf-field-group" style="text-align:center; padding:12px 10px; margin-bottom:0;">
+        <div style="font-size:24px;font-weight:600;color:#1b1b1b">24</div>
+        <div style="font-size:10px;color:#5a5a5a;text-transform:uppercase;letter-spacing:.04em;margin-top:2px">Active DCOs</div>
+      </div>
+      <div class="sf-field-group" style="text-align:center; padding:12px 10px; margin-bottom:0;">
+        <div style="font-size:24px;font-weight:600;color:#ba0517" id="dash_red_count">3</div>
+        <div style="font-size:10px;color:#5a5a5a;text-transform:uppercase;letter-spacing:.04em;margin-top:2px">Red RAG Cases</div>
+      </div>
+      <div class="sf-field-group" style="text-align:center; padding:12px 10px; margin-bottom:0;">
+        <div style="font-size:24px;font-weight:600;color:#ba6400" id="dash_open_issues">12</div>
+        <div style="font-size:10px;color:#5a5a5a;text-transform:uppercase;letter-spacing:.04em;margin-top:2px">Open Env Issues</div>
+      </div>
+      <div class="sf-field-group" style="text-align:center; padding:12px 10px; margin-bottom:0;">
+        <div style="font-size:24px;font-weight:600;color:#2e844a" id="dash_ready_cases">0</div>
+        <div style="font-size:10px;color:#5a5a5a;text-transform:uppercase;letter-spacing:.04em;margin-top:2px">Ready for Clearance</div>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #dddbda;border-radius:6px;overflow:hidden;margin-bottom:12px">
+      <div style="display:flex;align-items:center;padding:8px 12px;border-bottom:1px solid #dddbda;background:#fef1ee;gap:8px">
+        <span style="font-size:12px;font-weight:600;color:#ba0517;flex:1">&#9888; High Risk & Priorities</span>
+      </div>
+      <table class="sf-list-table">
+        <thead><tr><th>Case Ref</th><th>Project Name</th><th>Status</th><th>Open Issues</th><th>Readiness</th><th>RAG</th></tr></thead>
+        <tbody>
+          <tr onclick="navigateTo('case_workspace')">
+            <td class="td-link">DCO-2026-EN010012</td>
+            <td>South Humber Bank Energy</td>
+            <td><span class="f-value tag-blue">Env Review</span></td>
+            <td><span id="dash_case1_issues" class="f-value tag-red" style="font-weight:bold;">2 Blocking</span></td>
+            <td><span id="dash_case1_ready" class="f-value tag-gray">Not Ready</span></td>
+            <td><span class="RagFlag red" id="dash_case1_rag"></span></td>
+          </tr>
+          <tr>
+            <td class="td-link">DCO-2025-EN020021</td>
+            <td>North Sea Windfarm Extension</td>
+            <td><span class="f-value tag-amber">Consultation</span></td>
+            <td><span class="f-value tag-gray">0 Blocking</span></td>
+            <td><span class="f-value tag-gray">Not Ready</span></td>
+            <td><span class="RagFlag amber"></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- =========================
+     SCREEN 1: DCO CASE WORKSPACE
+     ========================= -->
+<div class="sf-shell screen" id="case_workspace">
+  <div class="screen-label">
+    <span>DCO Case Workspace | User: Env Case Manager</span>
+    <button class="nav-btn" onclick="navigateTo('dashboard')">Back to Dashboard</button>
+  </div>
+  <div class="sf-topbar">
+    <span class="sf-topbar-app">&#9783; DCO Case Management</span>
+    <input class="sf-topbar-search" placeholder="Search..."><div class="sf-topbar-icons"><div class="sf-topbar-icon" style="background:#ba0517">1</div></div>
+  </div>
+  <div class="sf-tabbar">
+    <div class="sf-tabbar-tab">All Cases <span class="tab-close">&#215;</span></div>
+    <div class="sf-tabbar-tab active">DCO-2026-EN010012 <span class="tab-close">&#215;</span></div>
+  </div>
+  <div class="sf-page-header">
+    <h1><div class="sf-obj-icon blue">C</div>DCO-2026-EN010012 &mdash; South Humber Bank Energy Centre</h1>
+  </div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Applicant</div><div class="hf-value">EP Waste Management Ltd</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Stage</div><div class="hf-value status-review">Environmental Review</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Decision Deadline</div><div class="hf-value status-risk">14 May 2026</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Overall RAG</div><div class="hf-value" id="cw_overall_rag"><span class="RagFlag red"></span> Red</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Env Readiness</div><div class="hf-value" id="cw_env_readiness"><span class="f-value tag-red">Not Ready</span></div></div>
+    <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="sf-btn primary" onclick="navigateTo('env_review_workspace')">Open Env Workspace &#8594;</button>
+        <button class="sf-btn">&#8942; More</button>
+    </div>
+  </div>
+  <div class="sf-path-bar">
+    <span class="sf-path-node done">&#10003; Accepted</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node done">&#10003; Pre-Exam</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node active">&#9679; Recommendation Review</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node">Decision</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node">Post-Decision</span>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-tab-row">
+        <div class="sf-tab active">Overview</div>
+        <div class="sf-tab">Project Details</div>
+        <div class="sf-tab">Key Contacts</div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Specialist Reviews</div>
+        <table class="sf-list-table">
+          <thead><tr><th>Review Area</th><th>Lead</th><th>Status</th><th>Clearance</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Planning & Legal</td>
+              <td>Sarah Barnes</td>
+              <td><span class="f-value tag-blue">In Progress</span></td>
+              <td><span class="f-value tag-gray">Pending</span></td>
+              <td class="td-link">Open</td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">Environmental</td>
+              <td>Alex Chen</td>
+              <td><span class="f-value tag-amber">Review Active</span></td>
+              <td id="cw_table_env_ready"><span class="f-value tag-red">Blocked</span></td>
+              <td class="td-link" onclick="navigateTo('env_review_workspace')" style="font-weight:600">Open Workspace &#8594;</td>
+            </tr>
+            <tr>
+              <td>Engineering / Tech</td>
+              <td>David Ross</td>
+              <td><span class="f-value tag-green">Completed</span></td>
+              <td><span class="f-value tag-green">Cleared</span></td>
+              <td class="td-link">Open</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-owner-card"><div class="sf-avatar" style="background:#0070d2">JB</div><div><div class="oc-name">Jane B.</div><div class="oc-role">Lead Case Manager</div></div></div>
+      <div class="sf-owner-card"><div class="sf-avatar" style="background:#7f8de1">AC</div><div><div class="oc-name">Alex Chen</div><div class="oc-role">Environmental Lead</div></div></div>
+      <div class="sf-deadline-card warn"><div class="dc-label">Target Clearance</div><div class="dc-value">01 May 2026</div><div class="dc-remaining warn">16 days left</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================
+     SCREEN 2: ENV REVIEW WORKSPACE
+     ========================= -->
+<div class="sf-shell screen" id="env_review_workspace">
+  <div class="screen-label">
+    <span>Environmental Review Workspace</span>
+    <button class="nav-btn" onclick="navigateTo('case_workspace')">&#8592; Back to Case</button>
+  </div>
+  <div class="sf-topbar">
+    <span class="sf-topbar-app">&#9783; Env Review | South Humber Bank</span>
+  </div>
+  <div class="sf-page-header">
+    <h1><div class="sf-obj-icon green">ER</div>Environmental Review Workspace</h1>
+  </div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Case</div><div class="hf-value link" onclick="navigateTo('case_workspace')">DCO-2026-EN010012</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Env Status</div><div class="hf-value status-review">Review in Progress</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Open Issues</div><div class="hf-value" id="er_open_issues"><span class="f-value tag-red">2 Blocking</span></div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Readiness</div><div class="hf-value" id="er_readiness"><span class="f-value tag-red">Not Ready</span></div></div>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <button class="sf-btn primary" onclick="navigateTo('clearance_readiness')">Check Readiness &#8594;</button>
+    </div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+        <div class="sf-kpi-grid">
+            <div class="sf-kpi" onclick="navigateTo('document_viewer')" style="cursor:pointer; background:#f9f9f9"><div class="kpi-n" style="color:#0070d2">34</div><div class="kpi-label" style="color:#0070d2">Documents to Review</div></div>
+            <div class="sf-kpi" onclick="navigateTo('env_issue_detail')" style="cursor:pointer; background:#f9f9f9"><div class="kpi-n red" id="kpi_issues">2</div><div class="kpi-label" style="color:#0070d2">Open Issues</div></div>
+            <div class="sf-kpi" onclick="navigateTo('consultation_tracker')" style="cursor:pointer; background:#f9f9f9"><div class="kpi-n amber" id="kpi_cons">1</div><div class="kpi-label" style="color:#0070d2">Pending Consultations</div></div>
+            <div class="sf-kpi" onclick="navigateTo('drafting_contributions')" style="cursor:pointer; background:#f9f9f9"><div class="kpi-n" id="kpi_draft">0</div><div class="kpi-label" style="color:#0070d2">Drafting Inputs</div></div>
+        </div>
+
+      <div class="sf-field-group">
+        <div class="sf-field-group-title" style="display:flex; justify-content:space-between">
+            <span>Environmental Issues Tracker</span>
+            <button class="sf-btn">+ Log New Issue</button>
+        </div>
+        <table class="sf-list-table">
+          <thead><tr><th>Issue ID</th><th>Theme</th><th>Title</th><th>Status</th><th>Blocker?</th></tr></thead>
+          <tbody>
+            <tr onclick="navigateTo('env_issue_detail')">
+              <td class="td-link">ENV-ISS-001</td>
+              <td>Habitats (HRA)</td>
+              <td>Insufficient mitigation for wading birds</td>
+              <td id="er_list_issue1"><span class="f-value tag-red">Open</span></td>
+              <td id="er_list_issue1_blocker"><span class="RagFlag red"></span> Yes</td>
+            </tr>
+            <tr>
+              <td class="td-link">ENV-ISS-002</td>
+              <td>Noise / Vibration</td>
+              <td>Marine piling noise assessment</td>
+              <td id="er_list_issue2"><span class="f-value tag-green">Resolved</span></td>
+              <td><span class="RagFlag gray"></span> No</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Active Consultations (Environmental)</div>
+        <div class="sf-rl-row" onclick="navigateTo('consultation_tracker')">
+            <span class="rl-name" style="font-weight:600">Natural England — HRA Mitigation Queries</span>
+            <span class="rl-meta" id="er_list_cons1"><span class="f-value tag-amber">Awaiting Response</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-actions-panel">
+        <div class="ap-title">Quick Navigation</div>
+        <div class="sf-btn-group col">
+            <button class="sf-btn" onclick="navigateTo('document_viewer')">Doc & Evidence Viewer</button>
+            <button class="sf-btn" onclick="navigateTo('drafting_contributions')">Drafting & Contributions</button>
+            <button class="sf-btn primary" onclick="navigateTo('clearance_readiness')">Clearance Readiness</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================
+     SCREEN 3: DOCUMENT VIEWER
+     ========================= -->
+<div class="sf-shell screen" id="document_viewer">
+  <div class="screen-label">
+    <span>Document & Evidence Viewer</span>
+    <button class="nav-btn" onclick="navigateTo('env_review_workspace')">&#8592; Back to Env Workspace</button>
+  </div>
+  <div class="sf-topbar">
+    <span class="sf-topbar-app">&#9783; Document Viewer</span>
+  </div>
+  <div class="sf-page-header">
+    <h1><div class="sf-obj-icon gray" style="background:#5a5a5a">DV</div>Evidence Viewer — Habitats Regulations Assessment (App-044)</h1>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-sidebar" style="width: 300px; background: #fff; border-right: 1px solid #dddbda;">
+        <div class="sf-field-group-title">Document Library Filter</div>
+        <input class="sf-textarea-mock" placeholder="Filter documents..." style="min-height:30px; margin-bottom:12px;">
+        
+        <div class="sf-rl-header"><span class="rl-title">Environmental Statement</span></div>
+        <div class="doc-row active" style="background:#e8f0fe"><div class="doc-icon">PDF</div><span class="doc-name">App-044: Habitats Reg. Assessment</span></div>
+        <div class="doc-row"><div class="doc-icon">PDF</div><span class="doc-name">App-045: Environmental Masterplan</span></div>
+        
+        <div class="sf-rl-header" style="margin-top:10px"><span class="rl-title">Responses</span></div>
+        <div class="doc-row"><div class="doc-icon" style="background:#fff8ed; color:#ba6400">REP</div><span class="doc-name">Natural England Relevant Rep</span></div>
+    </div>
+    <div class="sf-main" style="background:#5a5a5a; display:flex; align-items:center; justify-content:center; min-height: 500px; position: relative;">
+        <div style="background:#fff; width: 80%; height: 90%; box-shadow: 0 4px 12px rgba(0,0,0,0.3); padding: 20px; overflow-y:auto; font-family: serif; line-height: 1.6;">
+            <h2 style="font-size:24px; margin-bottom: 20px; text-align: center;">Habitats Regulations Assessment Report</h2>
+            <h3 style="font-size:18px; margin-bottom: 10px;">Executive Summary</h3>
+            <p style="margin-bottom: 10px;">This report details the Habitats Regulations Assessment (HRA) for the South Humber Bank Energy Centre. It evaluates potential impacts on the Humber Estuary Special Area of Conservation (SAC) and Special Protection Area (SPA).</p>
+            <p style="margin-bottom: 10px; background: #fff8ed; border-left: 4px solid #ba6400; padding: 10px;">
+                <strong>8.2 Mitigation for Wading Birds:</strong> Construction scheduling will avoid peak wintering months where practicable. Noise baffling will be deployed during piling operations... 
+            </p>
+            <p style="margin-size:12px; color:#5a5a5a; text-align:center; margin-top:40px;">[End of Page 1 / 142]</p>
+        </div>
+        
+        <!-- Contextual action popover -->
+        <div style="position: absolute; right: 20px; top: 20px; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); width: 220px;">
+            <div style="font-size:11px; font-weight:600; margin-bottom: 8px;">Document Actions</div>
+            <button class="sf-btn" style="width:100%; margin-bottom:4px;" onclick="navigateTo('env_issue_detail')">Link to existing issue: ENV-ISS-001</button>
+            <button class="sf-btn" style="width:100%; margin-bottom:4px;">Flag for drafting</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================
+     SCREEN 4: ENV ISSUE DETAIL
+     ========================= -->
+<div class="sf-shell screen" id="env_issue_detail">
+  <div class="screen-label">
+    <span>Environmental Issue Detail</span>
+    <button class="nav-btn" onclick="navigateTo('env_review_workspace')">&#8592; Back to Env Workspace</button>
+  </div>
+  <div class="sf-topbar">
+    <span class="sf-topbar-app">&#9783; Env Issue | ENV-ISS-001</span>
+  </div>
+  <div class="sf-page-header">
+    <h1><div class="sf-obj-icon red">EI</div>ENV-ISS-001 &mdash; Insufficient mitigation for wading birds</h1>
+  </div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Case</div><div class="hf-value link" onclick="navigateTo('case_workspace')">DCO-2026-EN010012</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Theme</div><div class="hf-value">Habitats (HRA)</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Status</div><div class="hf-value" id="iss_status_label"><span class="f-value tag-red">Open</span></div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Clearance Blocker?</div><div class="hf-value" id="iss_blocker_label"><span class="RagFlag red"></span> Yes</div></div>
+    <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="sf-btn success" id="btn_toggle_issue" onclick="toggleIssueStatus()">Mark as Resolved &#10003;</button>
+    </div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+        <div class="sf-field-group">
+            <div class="sf-field-group-title">Issue Description</div>
+            <p style="font-size:13px; line-height: 1.5;">The applicant's HRA proposes noise baffling but does not provide sufficient guarantee on Wintering bird impact limits. Natural England raised this as a principal area of concern in their relevant representation.</p>
+        </div>
+        
+        <div class="sf-field-group">
+            <div class="sf-field-group-title">Source Evidence</div>
+            <div class="sf-rl-row" onclick="navigateTo('document_viewer')">
+                <span class="rl-name" style="font-weight:600">App-044: Habitats Reg. Assessment (Pg 8)</span>
+                <span class="rl-meta">View &#8594;</span>
+            </div>
+        </div>
+
+        <div class="sf-field-group">
+            <div class="sf-field-group-title">Update Trail & Notes</div>
+            <textarea class="sf-textarea-mock" id="iss_notes" placeholder="Add a note..."></textarea>
+            <button class="sf-btn" onclick="document.getElementById('iss_notes').value=''">Add Note</button>
+            
+            <div class="sf-activity" style="margin-top:12px;">
+                <div class="act-item">
+                    <div class="act-icon task">R</div>
+                    <div class="act-body">
+                        <div class="act-title">Status update pending consultation response.</div>
+                        <div class="act-meta">Alex Chen — 10 Apr 2026</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-actions-panel">
+        <div class="ap-title">Related Items</div>
+        <div class="sf-btn-group col">
+            <button class="sf-btn" onclick="navigateTo('consultation_tracker')">Linked Consultation (1)</button>
+            <button class="sf-btn" onclick="navigateTo('drafting_contributions')">Drafting Input (0)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================
+     SCREEN 5: CONSULTATION TRACKER
+     ========================= -->
+<div class="sf-shell screen" id="consultation_tracker">
+  <div class="screen-label">
+    <span>Consultation Tracker</span>
+    <button class="nav-btn" onclick="navigateTo('env_review_workspace')">&#8592; Back to Env Workspace</button>
+  </div>
+  <div class="sf-topbar">
+    <span class="sf-topbar-app">&#9783; Consultation | CONS-001</span>
+  </div>
+  <div class="sf-page-header">
+    <h1><div class="sf-obj-icon amber" id="cons_icon">C</div>CONS-001 &mdash; Natural England — HRA Mitigation Queries</h1>
+  </div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Type</div><div class="hf-value">Statutory Environmental</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Sent</div><div class="hf-value">12 Apr 2026</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Due</div><div class="hf-value">26 Apr 2026</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Status</div><div class="hf-value" id="cons_status_label"><span class="f-value tag-amber">Awaiting Response</span></div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Reviewed?</div><div class="hf-value" id="cons_review_label"><span class="f-value tag-gray">Pending</span></div></div>
+    <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="sf-btn primary" id="btn_cons_action" onclick="cycleConsultationStatus()">Record Response Received</button>
+    </div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+        <div class="sf-banner warn" id="cons_banner">&#9888; Awaiting response from Natural England. Due in 12 days.</div>
+        
+        <div class="sf-field-group">
+            <div class="sf-field-group-title">Consultation Details</div>
+            <p style="font-size:12px; line-height: 1.5;">We have requested explicit confirmation from Natural England regarding the applicant's updated proposed DCO Requirements for piling noise mitigation (Requirement 14).</p>
+        </div>
+
+        <div class="sf-field-group" id="cons_response_area" style="display:none; transition: all 0.3s;">
+            <div class="sf-field-group-title">Response Content (Simulated)</div>
+            <div style="background:#eaf5ea; border:1px solid #9bcca4; padding:10px; border-radius:4px; font-size:12px; margin-bottom:10px;">
+                <strong>From:</strong> Natural England<br>
+                <strong>Date:</strong> 14 Apr 2026<br><br>
+                "We confirm that the updated wording for Requirement 14 provides sufficient safeguard for the Humber Estuary SAC wintering bird assemblage. We withdraw our previous objection on this specific matter."
+            </div>
+            
+            <div style="display:flex; gap:10px; align-items:center; border-top:1px solid #dddbda; padding-top:10px;">
+                <span style="font-size:12px; font-weight:600;">Officer Action:</span>
+                <button class="sf-btn success" id="btn_mark_reviewed" onclick="markConsReviewed()">Mark Response as Reviewed &#10003;</button>
+            </div>
+        </div>
+        
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-actions-panel">
+        <div class="ap-title">Linked Entities</div>
+        <div class="sf-btn-group col">
+            <button class="sf-btn" onclick="navigateTo('env_issue_detail')">Related Issue: ENV-ISS-001</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================
+     SCREEN 6: DRAFTING & CONTRIBUTIONS
+     ========================= -->
+<div class="sf-shell screen" id="drafting_contributions">
+  <div class="screen-label">
+    <span>Drafting & Contributions</span>
+    <button class="nav-btn" onclick="navigateTo('env_review_workspace')">&#8592; Back to Env Workspace</button>
+  </div>
+  <div class="sf-topbar">
+    <span class="sf-topbar-app">&#9783; Drafting inputs</span>
+  </div>
+  <div class="sf-page-header">
+    <h1><div class="sf-obj-icon blue" style="background:#0070d2">Dr</div>Drafting Inputs & Contributions</h1>
+  </div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Overall Status</div><div class="hf-value" id="draft_status"><span class="f-value tag-amber">Input Required</span></div></div>
+    <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="sf-btn primary" id="btn_save_draft" onclick="saveDrafting()">Submit Drafting Input</button>
+    </div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+        <div class="sf-banner info">Provide your environmental chapter input for the final recommendation report here.</div>
+        
+        <div class="sf-field-group">
+            <div class="sf-field-group-title">Environmental Chapter Drafting</div>
+            <textarea class="sf-textarea-mock" id="ta_drafting" placeholder="Draft environmental analysis and conclusions here..." style="min-height: 200px;"></textarea>
+            <div style="text-align:right; margin-top:8px;" id="draft_feedback"></div>
+        </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-actions-panel">
+        <div class="ap-title">References</div>
+        <div class="sf-btn-group col">
+            <button class="sf-btn" onclick="navigateTo('env_issue_detail')">Check ENV-ISS-001 Status</button>
+            <button class="sf-btn" onclick="navigateTo('consultation_tracker')">Check Consultee Responses</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================
+     SCREEN 7: CLEARANCE & READINESS
+     ========================= -->
+<div class="sf-shell screen" id="clearance_readiness">
+  <div class="screen-label">
+    <span>Clearance & Decision Readiness</span>
+    <button class="nav-btn" onclick="navigateTo('env_review_workspace')">&#8592; Back to Env Workspace</button>
+  </div>
+  <div class="sf-topbar">
+    <span class="sf-topbar-app">&#9783; Clearance Readiness</span>
+  </div>
+  <div class="sf-page-header">
+    <h1><div class="sf-obj-icon green" style="background:#2e844a">R</div>Environmental Clearance Readiness</h1>
+  </div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Readiness Status</div><div class="hf-value" id="rd_main_status"><span class="f-value tag-red">Not Ready to Clear</span></div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Blocking Issues</div><div class="hf-value" id="rd_blocking_count"><span class="f-value tag-red">1 Blocker</span></div></div>
+    <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="sf-btn success" id="btn_final_clearance" onclick="confirmClearance()" disabled style="opacity: 0.5;">Sign-off Environmental Clearance</button>
+    </div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+        <div class="sf-banner error" id="rd_banner_msg">&#9888; Environmental review cannot be cleared. Resolve blocking issues and complete drafting first.</div>
+        
+        <div class="sf-field-group">
+            <div class="sf-field-group-title">Clearance Checklist (Auto-calculated)</div>
+            
+            <div class="sf-checkbox-row">
+                <div class="sf-checkbox" id="chk_issues"></div>
+                <span style="flex:1">All blocking Environmental Issues resolved</span>
+                <span class="f-value tag-red" id="lbl_chk_issues" style="margin-left:auto">Pending</span>
+            </div>
+            
+            <div class="sf-checkbox-row">
+                <div class="sf-checkbox" id="chk_cons"></div>
+                <span style="flex:1">All critical Consultations responded and reviewed</span>
+                <span class="f-value tag-amber" id="lbl_chk_cons" style="margin-left:auto">Pending</span>
+            </div>
+            
+            <div class="sf-checkbox-row">
+                <div class="sf-checkbox" id="chk_draft"></div>
+                <span style="flex:1">Drafting input submitted to Recommendation Report</span>
+                <span class="f-value tag-red" id="lbl_chk_draft" style="margin-left:auto">Pending</span>
+            </div>
+        </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-actions-panel">
+        <div class="ap-title">Action Required</div>
+        <div class="sf-btn-group col" id="rd_actions">
+            <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- Lightweight State Management ---
+// Default initial state
+const defaultState = {
+    issueResolved: false,
+    consultationState: 0, // 0=Awaiting, 1=Received, 2=Reviewed
+    draftingSubmitted: false,
+    clearanceSignedOff: false
+};
+
+let appState = {};
+
+function initState() {
+    const saved = localStorage.getItem('dco_env_prototype_state');
+    if (saved) {
+        try {
+            appState = JSON.parse(saved);
+        } catch(e) {
+            appState = {...defaultState};
+        }
+    } else {
+        appState = {...defaultState};
+    }
+    updateUI();
+}
+
+function saveState() {
+    localStorage.setItem('dco_env_prototype_state', JSON.stringify(appState));
+    updateUI();
+}
+
+function resetState() {
+    appState = {...defaultState};
+    document.getElementById('ta_drafting').value = '';
+    saveState();
+    navigateTo('dashboard');
+}
+
+// --- Navigation ---
+function navigateTo(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    let target = document.getElementById(screenId);
+    if(target) target.classList.add('active');
+    
+    document.querySelectorAll('.nav-btn').forEach(b => {
+        if(b.dataset.target === screenId) b.classList.add('active');
+        else b.classList.remove('active');
+    });
+    window.scrollTo(0, 0);
+    updateUI(); // Refresh UI on entering screen
+}
+
+document.querySelectorAll('.nav-btn[data-target]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        navigateTo(e.target.dataset.target);
+    });
+});
+
+// --- Action Handlers ---
+
+// Issue toggle
+function toggleIssueStatus() {
+    appState.issueResolved = !appState.issueResolved;
+    saveState();
+}
+
+// Consultation cycle
+function cycleConsultationStatus() {
+    if (appState.consultationState === 0) {
+        appState.consultationState = 1; // Received
+    }
+    saveState();
+}
+
+function markConsReviewed() {
+    appState.consultationState = 2; // Reviewed
+    saveState();
+}
+
+// Drafting
+function saveDrafting() {
+    const val = document.getElementById('ta_drafting').value;
+    if(val.trim().length > 10) {
+        appState.draftingSubmitted = true;
+        document.getElementById('draft_feedback').innerHTML = "<span style='color:#2e844a; font-weight:bold;'>&#10003; Saved and submitted</span>";
+        saveState();
+        setTimeout(() => { document.getElementById('draft_feedback').innerHTML = ""; }, 3000);
+    } else {
+        alert("Please write at least a sentence before submitting.");
+    }
+}
+
+// Clearance
+function confirmClearance() {
+    appState.clearanceSignedOff = true;
+    saveState();
+    alert("Environmental Clearance Signed Off successfully.");
+    navigateTo('case_workspace');
+}
+
+// --- Dynamic UI Rendering based on State ---
+function updateUI() {
+    // Computations
+    const issueOk = appState.issueResolved;
+    const consOk = appState.consultationState === 2;
+    const draftOk = appState.draftingSubmitted;
+    const allReady = issueOk && consOk && draftOk;
+
+    // --- Env Issue Detail Updates ---
+    const btnIssue = document.getElementById('btn_toggle_issue');
+    const lblStatus = document.getElementById('iss_status_label');
+    const lblBlocker = document.getElementById('iss_blocker_label');
+    if (issueOk) {
+        btnIssue.innerHTML = "Reopen Issue";
+        btnIssue.className = "sf-btn";
+        lblStatus.innerHTML = '<span class="f-value tag-green">Resolved</span>';
+        lblBlocker.innerHTML = '<span class="RagFlag gray"></span> No';
+    } else {
+        btnIssue.innerHTML = "Mark as Resolved &#10003;";
+        btnIssue.className = "sf-btn success";
+        lblStatus.innerHTML = '<span class="f-value tag-red">Open</span>';
+        lblBlocker.innerHTML = '<span class="RagFlag red"></span> Yes';
+    }
+
+    // --- Consultation Updates ---
+    const lblConsStat = document.getElementById('cons_status_label');
+    const lblConsRev = document.getElementById('cons_review_label');
+    const btnConsAct = document.getElementById('btn_cons_action');
+    const consBanner = document.getElementById('cons_banner');
+    const consRespArea = document.getElementById('cons_response_area');
+    const consIcon = document.getElementById('cons_icon');
+    
+    if (appState.consultationState === 0) {
+        lblConsStat.innerHTML = '<span class="f-value tag-amber">Awaiting Response</span>';
+        lblConsRev.innerHTML = '<span class="f-value tag-gray">Pending</span>';
+        btnConsAct.style.display = 'inline-flex';
+        consBanner.style.display = 'block';
+        consBanner.className = 'sf-banner warn';
+        consBanner.innerHTML = '&#9888; Awaiting response from Natural England. Due in 12 days.';
+        consRespArea.style.display = 'none';
+        consIcon.className = "sf-obj-icon amber";
+    } else if (appState.consultationState === 1) {
+        lblConsStat.innerHTML = '<span class="f-value tag-blue">Response Received</span>';
+        lblConsRev.innerHTML = '<span class="f-value tag-amber">Needs Review</span>';
+        btnConsAct.style.display = 'none';
+        consBanner.style.display = 'block';
+        consBanner.className = 'sf-banner info';
+        consBanner.innerHTML = 'Response received via Portal. Please review the content below.';
+        consRespArea.style.display = 'block';
+        document.getElementById('btn_mark_reviewed').style.display = 'inline-flex';
+        consIcon.className = "sf-obj-icon blue";
+    } else if (appState.consultationState === 2) {
+        lblConsStat.innerHTML = '<span class="f-value tag-green">Completed</span>';
+        lblConsRev.innerHTML = '<span class="f-value tag-green">Reviewed &#10003;</span>';
+        btnConsAct.style.display = 'none';
+        consBanner.style.display = 'none';
+        consRespArea.style.display = 'block';
+        document.getElementById('btn_mark_reviewed').style.display = 'none';
+        consIcon.className = "sf-obj-icon green";
+    }
+
+    // --- Drafting Updates ---
+    const draftStat = document.getElementById('draft_status');
+    const btnSaveDraft = document.getElementById('btn_save_draft');
+    if (draftOk) {
+        draftStat.innerHTML = '<span class="f-value tag-green">Submitted</span>';
+        btnSaveDraft.innerHTML = "Update Input";
+        btnSaveDraft.className = "sf-btn";
+    } else {
+        draftStat.innerHTML = '<span class="f-value tag-amber">Input Required</span>';
+        btnSaveDraft.innerHTML = "Submit Drafting Input";
+        btnSaveDraft.className = "sf-btn primary";
+    }
+
+    // --- Clearance Readiness Updates ---
+    document.getElementById('chk_issues').className = issueOk ? "sf-checkbox checked" : "sf-checkbox";
+    document.getElementById('chk_issues').innerHTML = issueOk ? "&#10003;" : "";
+    document.getElementById('lbl_chk_issues').innerHTML = issueOk ? '<span class="f-value tag-green">Completed</span>' : '<span class="f-value tag-red">Pending</span>';
+
+    document.getElementById('chk_cons').className = consOk ? "sf-checkbox checked" : "sf-checkbox";
+    document.getElementById('chk_cons').innerHTML = consOk ? "&#10003;" : "";
+    document.getElementById('lbl_chk_cons').innerHTML = consOk ? '<span class="f-value tag-green">Completed</span>' : '<span class="f-value tag-amber">Pending</span>';
+
+    document.getElementById('chk_draft').className = draftOk ? "sf-checkbox checked" : "sf-checkbox";
+    document.getElementById('chk_draft').innerHTML = draftOk ? "&#10003;" : "";
+    document.getElementById('lbl_chk_draft').innerHTML = draftOk ? '<span class="f-value tag-green">Completed</span>' : '<span class="f-value tag-red">Pending</span>';
+
+    const btnClearance = document.getElementById('btn_final_clearance');
+    const rdBanner = document.getElementById('rd_banner_msg');
+    const rdMainStatus = document.getElementById('rd_main_status');
+    const rdBlockers = document.getElementById('rd_blocking_count');
+    
+    let blockingCount = (issueOk?0:1) + (consOk?0:1) + (draftOk?0:1);
+    
+    // Side actions list on clearance
+    let actsHtml = "";
+    if(!issueOk) actsHtml += `<button class="sf-btn destructive" onclick="navigateTo('env_issue_detail')">Fix ENV-ISS-001</button>`;
+    if(!consOk) actsHtml += `<button class="sf-btn warn" onclick="navigateTo('consultation_tracker')">Review CONS-001</button>`;
+    if(!draftOk) actsHtml += `<button class="sf-btn primary" onclick="navigateTo('drafting_contributions')">Add Drafting</button>`;
+    
+    if(actsHtml === "") actsHtml = `<span style="font-size:11px; color:#5a5a5a;">No pending actions.</span>`;
+    document.getElementById('rd_actions').innerHTML = actsHtml;
+
+    if (allReady) {
+        if(appState.clearanceSignedOff) {
+            rdBanner.className = "sf-banner success";
+            rdBanner.innerHTML = "&#10003; Environmental clearance signed off successfully.";
+            rdMainStatus.innerHTML = '<span class="f-value tag-green">Cleared</span>';
+            btnClearance.disabled = true;
+            btnClearance.style.opacity = '0.5';
+            btnClearance.innerHTML = "Signed Off &#10003;";
+        } else {
+            btnClearance.disabled = false;
+            btnClearance.style.opacity = '1';
+            rdBanner.className = "sf-banner success";
+            rdBanner.innerHTML = "&#10003; All checks passed. Ready for Env Lead sign-off.";
+            rdMainStatus.innerHTML = '<span class="f-value tag-green">Ready to Clear</span>';
+        }
+        rdBlockers.innerHTML = '<span class="f-value tag-gray">0 Blockers</span>';
+    } else {
+        btnClearance.disabled = true;
+        btnClearance.style.opacity = '0.5';
+        rdBanner.className = "sf-banner error";
+        rdBanner.innerHTML = `&#9888; Environmental review cannot be cleared. Resolve ${blockingCount} blocking items first.`;
+        rdMainStatus.innerHTML = '<span class="f-value tag-red">Not Ready to Clear</span>';
+        rdBlockers.innerHTML = `<span class="f-value tag-red">${blockingCount} Blockers</span>`;
+    }
+
+    // --- Updates across global Workspace/Dash ---
+    // Env Review Workspace
+    document.getElementById('er_open_issues').innerHTML = issueOk ? '<span class="f-value tag-gray">0 Blocking</span>' : '<span class="f-value tag-red">1 Blocking</span>';
+    
+    document.getElementById('er_list_issue1').innerHTML = issueOk ? '<span class="f-value tag-green">Resolved</span>' : '<span class="f-value tag-red">Open</span>';
+    document.getElementById('er_list_issue1_blocker').innerHTML = issueOk ? '<span class="RagFlag gray"></span> No' : '<span class="RagFlag red"></span> Yes';
+    
+    let consLabelEr = appState.consultationState===0 ? '<span class="f-value tag-amber">Awaiting</span>' : 
+                      (appState.consultationState===1 ? '<span class="f-value tag-blue">Needs Review</span>' : '<span class="f-value tag-green">Reviewed</span>');
+    document.getElementById('er_list_cons1').innerHTML = consLabelEr;
+
+    document.getElementById('er_readiness').innerHTML = allReady ? '<span class="f-value tag-green">Ready</span>' : '<span class="f-value tag-red">Not Ready</span>';
+    
+    document.getElementById('kpi_issues').className = issueOk ? "kpi-n green" : "kpi-n red";
+    document.getElementById('kpi_issues').innerText = issueOk ? "0" : "1";
+    document.getElementById('kpi_cons').className = appState.consultationState===2 ? "kpi-n green" : "kpi-n amber";
+    document.getElementById('kpi_cons').innerText = appState.consultationState===2 ? "0" : "1";
+    document.getElementById('kpi_draft').className = draftOk ? "kpi-n green" : "kpi-n amber";
+    document.getElementById('kpi_draft').innerText = draftOk ? "1" : "0";
+
+    // Dashboard & Case Workspace
+    const badgeCount = (issueOk?0:1) + (appState.consultationState===2?0:1) + (draftOk?0:1);
+    const overallRagClass = issueOk ? (draftOk&&consOk?"green":"amber") : "red";
+    
+    document.getElementById('dash_alert_badge').innerText = badgeCount;
+    document.getElementById('dash_red_count').innerText = issueOk ? "2" : "3";
+    document.getElementById('dash_open_issues').innerText = issueOk ? "11" : "12";
+    document.getElementById('dash_ready_cases').innerText = allReady ? "1" : "0";
+
+    document.getElementById('dash_case1_issues').className = issueOk ? "f-value tag-gray" : "f-value tag-red";
+    document.getElementById('dash_case1_issues').innerText = issueOk ? "0 Blocking" : "1 Blocking";
+    document.getElementById('dash_case1_ready').className = allReady ? "f-value tag-green" : "f-value tag-gray";
+    document.getElementById('dash_case1_ready').innerText = allReady ? "Ready" : "Not Ready";
+    document.getElementById('dash_case1_rag').className = "RagFlag " + overallRagClass;
+
+    document.getElementById('cw_overall_rag').innerHTML = `<span class="RagFlag ${overallRagClass}"></span> ` + (overallRagClass==='red'?'Red':(overallRagClass==='amber'?'Amber':'Green'));
+    document.getElementById('cw_env_readiness').innerHTML = allReady ? '<span class="f-value tag-green">Ready to Clear</span>' : '<span class="f-value tag-red">Not Ready</span>';
+    document.getElementById('cw_table_env_ready').innerHTML = allReady ? '<span class="f-value tag-green">Ready</span>' : '<span class="f-value tag-red">Blocked</span>';
+}
+
+// Init when DOM loads
+window.onload = function() {
+    initState();
+};
+
+</script>
+</body>
+</html>

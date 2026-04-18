@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DESNZ CPO — Internal Salesforce Wireframes</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#1b1b1b;background:#f3f2f2;padding:16px}
+h1{font-size:20px;font-weight:600;color:#1b1b1b;margin-bottom:4px}
+.intro{font-size:13px;color:#5a5a5a;margin-bottom:16px}
+.screen-nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.nav-btn{padding:5px 12px;font-size:12px;border-radius:4px;border:1px solid #c9c7c5;background:#fff;color:#1b1b1b;cursor:pointer;font-family:inherit}
+.nav-btn:hover{background:#f3f2f2}
+.nav-btn.active{background:#0070d2;border-color:#0070d2;color:#fff;font-weight:500}
+.sf-shell{background:#f3f2f2;border:1px solid #dddbda;border-radius:8px;overflow:hidden}
+.sf-topbar{background:#0070d2;display:flex;align-items:center;gap:10px;padding:6px 12px;min-height:36px}
+.sf-topbar-app{color:#fff;font-size:12px;font-weight:500}
+.sf-topbar-search{background:rgba(255,255,255,0.15);border:none;border-radius:4px;color:#fff;padding:4px 10px;font-size:12px;width:200px}
+.sf-topbar-search::placeholder{color:rgba(255,255,255,0.7)}
+.sf-topbar-icons{margin-left:auto;display:flex;gap:8px}
+.sf-topbar-icon{width:20px;height:20px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;text-align:center}
+.sf-tabbar{background:#f3f2f2;border-bottom:1px solid #dddbda;display:flex;align-items:center;padding:0 8px;overflow-x:auto}
+.sf-tabbar-tab{padding:6px 14px;font-size:11px;color:#5a5a5a;white-space:nowrap;border-bottom:2px solid transparent}
+.sf-tabbar-tab.active{color:#0070d2;border-bottom-color:#0070d2;font-weight:500}
+.tab-close{opacity:.5;font-size:10px;margin-left:4px}
+.sf-page-header{background:#fff;border-bottom:1px solid #dddbda;padding:10px 16px}
+.sf-page-header h1{font-size:18px;font-weight:500;color:#1b1b1b;display:flex;align-items:center;gap:8px}
+.sf-obj-icon{width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;flex-shrink:0}
+.sf-obj-icon.blue{background:#0070d2}.sf-obj-icon.green{background:#2e844a}.sf-obj-icon.red{background:#ba0517}.sf-obj-icon.purple{background:#7f8de1}.sf-obj-icon.amber{background:#ba6400}
+.sf-highlights{background:#fff;border-bottom:1px solid #dddbda;padding:10px 16px;display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+.sf-highlight-field .hf-label{font-size:10px;color:#5a5a5a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.sf-highlight-field .hf-value{font-size:13px;font-weight:500;color:#1b1b1b}
+.hf-value.link{color:#0070d2}.hf-value.status-valid{color:#2e844a;background:#eaf5ea;padding:1px 8px;border-radius:10px;font-size:11px;display:inline-block}.hf-value.status-review{color:#ba6400;background:#fff8ed;padding:1px 8px;border-radius:10px;font-size:11px;display:inline-block}.hf-value.status-risk{color:#ba0517;background:#fef1ee;padding:1px 8px;border-radius:10px;font-size:11px;display:inline-block}
+.sf-path-bar{background:#f3f2f2;border-bottom:1px solid #dddbda;padding:8px 16px;display:flex;align-items:center;overflow-x:auto;gap:2px}
+.sf-path-node{padding:5px 10px;font-size:11px;color:#5a5a5a;white-space:nowrap}
+.sf-path-node.done{color:#2e844a}.sf-path-node.active{color:#0070d2;font-weight:600}
+.sf-path-arrow{font-size:14px;color:#c9c7c5;padding:0 2px}
+.sf-layout{display:flex;align-items:flex-start}
+.sf-main{flex:1;min-width:0;padding:12px 16px;border-right:1px solid #dddbda}
+.sf-sidebar{width:250px;flex-shrink:0;padding:12px;background:#f8f7f6}
+.sf-tab-row{display:flex;border-bottom:1px solid #dddbda;margin-bottom:12px;overflow-x:auto}
+.sf-tab{padding:6px 14px;font-size:12px;color:#5a5a5a;border-bottom:2px solid transparent;white-space:nowrap}
+.sf-tab.active{color:#0070d2;border-bottom-color:#0070d2;font-weight:500}
+.sf-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:4px;font-size:12px;cursor:pointer;border:1px solid #c9c7c5;background:#fff;color:#1b1b1b;white-space:nowrap;font-family:inherit}
+.sf-btn.primary{background:#0070d2;border-color:#0070d2;color:#fff}.sf-btn.destructive{background:#ba0517;border-color:#ba0517;color:#fff}.sf-btn.success{background:#2e844a;border-color:#2e844a;color:#fff}
+.sf-btn-group{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.sf-btn-group.col{flex-direction:column}
+.sf-field-group{background:#fff;border:1px solid #dddbda;border-radius:6px;padding:10px 12px;margin-bottom:10px}
+.sf-field-group-title{font-size:11px;font-weight:600;color:#5a5a5a;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #dddbda;text-transform:uppercase;letter-spacing:.04em}
+.sf-fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sf-field .f-label{font-size:10px;color:#5a5a5a;margin-bottom:2px}
+.sf-field .f-value{font-size:12px;color:#1b1b1b}
+.f-value.link{color:#0070d2}
+.f-value.tag-green{color:#2e844a;background:#eaf5ea;padding:1px 6px;border-radius:8px;font-size:11px;display:inline-block}
+.f-value.tag-amber{color:#ba6400;background:#fff8ed;padding:1px 6px;border-radius:8px;font-size:11px;display:inline-block}
+.f-value.tag-red{color:#ba0517;background:#fef1ee;padding:1px 6px;border-radius:8px;font-size:11px;display:inline-block}
+.f-value.tag-blue{color:#0070d2;background:#e8f0fe;padding:1px 6px;border-radius:8px;font-size:11px;display:inline-block}
+.f-value.tag-gray{color:#5a5a5a;background:#f3f2f2;padding:1px 6px;border-radius:8px;font-size:11px;display:inline-block}
+.sf-related-list{background:#fff;border:1px solid #dddbda;border-radius:6px;margin-bottom:8px;overflow:hidden}
+.sf-rl-header{display:flex;align-items:center;padding:7px 10px;border-bottom:1px solid #dddbda;background:#f8f7f6;gap:6px}
+.sf-rl-header .rl-title{font-size:11px;font-weight:600;color:#1b1b1b;flex:1}
+.sf-rl-header .rl-count{font-size:10px;color:#5a5a5a;background:#e8e6e4;padding:1px 6px;border-radius:8px}
+.sf-rl-header .rl-btn{font-size:10px;color:#0070d2;cursor:pointer}
+.sf-rl-row{display:flex;align-items:center;padding:6px 10px;border-bottom:1px solid #f3f2f2;gap:8px;font-size:11px}
+.sf-rl-row:last-child{border-bottom:none}
+.sf-rl-row .rl-name{color:#0070d2;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sf-rl-row .rl-meta{color:#5a5a5a;font-size:10px;white-space:nowrap}
+.sf-banner{padding:8px 12px;border-radius:6px;font-size:12px;margin-bottom:10px;display:flex;gap:8px;align-items:flex-start}
+.sf-banner.info{background:#e8f0fe;color:#0070d2;border:1px solid #b3c9f5}
+.sf-banner.warn{background:#fff8ed;color:#ba6400;border:1px solid #f0c070}
+.sf-banner.error{background:#fef1ee;color:#ba0517;border:1px solid #f5bcb0}
+.sf-banner.success{background:#eaf5ea;color:#2e844a;border:1px solid #9bcca4}
+.sf-deadline-card{background:#fff;border:1px solid #dddbda;border-radius:6px;padding:10px;margin-bottom:8px}
+.sf-deadline-card.risk{border-left:3px solid #ba0517}.sf-deadline-card.warn{border-left:3px solid #ba6400}.sf-deadline-card.ok{border-left:3px solid #2e844a}
+.sf-deadline-card .dc-label{font-size:10px;color:#5a5a5a;margin-bottom:2px}
+.sf-deadline-card .dc-value{font-size:13px;font-weight:600;color:#1b1b1b}
+.dc-remaining.overdue{font-size:11px;color:#ba0517;font-weight:600}.dc-remaining.warn{font-size:11px;color:#ba6400}.dc-remaining.ok{font-size:11px;color:#2e844a}
+.sf-owner-card{background:#fff;border:1px solid #dddbda;border-radius:6px;padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.sf-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+.oc-name{font-size:12px;font-weight:500;color:#1b1b1b}.oc-role{font-size:10px;color:#5a5a5a}
+.sf-actions-panel{margin-bottom:12px}
+.sf-actions-panel .ap-title{font-size:10px;font-weight:600;color:#5a5a5a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.sf-activity{background:#fff;border:1px solid #dddbda;border-radius:6px;overflow:hidden;margin-bottom:10px}
+.act-header{background:#f8f7f6;border-bottom:1px solid #dddbda;padding:6px 10px;font-size:11px;font-weight:600;color:#1b1b1b}
+.act-item{padding:8px 10px;border-bottom:1px solid #f3f2f2;display:flex;gap:8px}
+.act-item:last-child{border-bottom:none}
+.act-icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;color:#fff;margin-top:1px}
+.act-icon.task{background:#0070d2}.act-icon.email{background:#2e844a}
+.act-body .act-title{font-size:12px;color:#1b1b1b;font-weight:500}
+.act-body .act-meta{font-size:10px;color:#5a5a5a;margin-top:2px}
+.sf-textarea-mock{background:#f8f7f6;border:1px solid #dddbda;border-radius:6px;padding:8px 10px;font-size:12px;color:#9b9b9b;min-height:56px;margin-bottom:8px;font-style:italic}
+.sf-checkbox-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:12px;color:#1b1b1b;border-bottom:1px solid #f3f2f2}
+.sf-checkbox-row:last-child{border-bottom:none}
+.sf-checkbox{width:14px;height:14px;border:1px solid #c9c7c5;border-radius:2px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;color:#2e844a;flex-shrink:0;margin-top:1px}
+.sf-list-table{width:100%;border-collapse:collapse;font-size:12px}
+.sf-list-table th{background:#f8f7f6;padding:6px 8px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#5a5a5a;border-bottom:1px solid #dddbda;white-space:nowrap}
+.sf-list-table td{padding:7px 8px;border-bottom:1px solid #f3f2f2;color:#1b1b1b;vertical-align:middle}
+.sf-list-table tr:last-child td{border-bottom:none}
+.sf-list-table tr:hover td{background:#f3f2f2}
+.td-link{color:#0070d2}
+.sf-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.sf-kpi{background:#fff;border:1px solid #dddbda;border-radius:6px;padding:10px 12px;text-align:center}
+.kpi-n{font-size:24px;font-weight:600;color:#1b1b1b}
+.kpi-n.red{color:#ba0517}.kpi-n.amber{color:#ba6400}.kpi-n.green{color:#2e844a}
+.kpi-label{font-size:10px;color:#5a5a5a;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.sf-chart-bar{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.sf-bar-row{display:flex;align-items:center;gap:8px}
+.bar-label{width:110px;font-size:11px;color:#5a5a5a;text-align:right;flex-shrink:0;white-space:nowrap}
+.bar-track{flex:1;background:#f3f2f2;border-radius:3px;height:14px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;background:#0070d2}
+.bar-fill.amber{background:#ba6400}.bar-fill.red{background:#ba0517}.bar-fill.green{background:#2e844a}
+.bar-val{font-size:11px;color:#5a5a5a;width:22px;text-align:right;flex-shrink:0}
+.sf-progress-bar{height:6px;background:#f3f2f2;border-radius:3px;overflow:hidden;margin-bottom:4px}
+.pb-fill{height:100%;background:#0070d2;border-radius:3px}
+.doc-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #f3f2f2;font-size:12px}
+.doc-row:last-child{border-bottom:none}
+.doc-icon{width:22px;height:22px;background:#e8f0fe;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#0070d2;flex-shrink:0}
+.doc-name{flex:1;color:#0070d2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rag{display:inline-block;width:12px;height:12px;border-radius:50%}
+.rag.red{background:#ba0517}.rag.amber{background:#ba6400}.rag.green{background:#2e844a}
+.dec-opt{border:1px solid #dddbda;border-radius:6px;padding:8px 10px;text-align:center;font-size:12px;color:#5a5a5a;cursor:pointer}
+.dec-opt.selected{border-color:#2e844a;border-width:2px;color:#2e844a}
+.section-divider{height:1px;background:#f3f2f2;margin:10px 0}
+.screen-label{font-size:11px;font-weight:600;color:#5a5a5a;text-transform:uppercase;letter-spacing:.08em;padding:8px 16px;background:#e8e6e4;border-bottom:1px solid #dddbda}
+.screen{display:none}
+.screen.active{display:block}
+@media print{.screen-nav{display:none}.screen{display:block !important;page-break-after:always}}
+</style>
+</head>
+<body>
+<h1>DESNZ CPO — Internal Salesforce Wireframes</h1>
+<p class="intro">Low-fidelity internal Salesforce wireframes for DESNZ / EIPD CPO case management. Click a screen to view it. Open in any browser — no internet connection required.</p>
+
+<div class="screen-nav">
+  <button class="nav-btn active" onclick="show(0,this)">1. Queue / list view</button>
+  <button class="nav-btn" onclick="show(1,this)">2. Case record</button>
+  <button class="nav-btn" onclick="show(2,this)">3. Pre-app workspace</button>
+  <button class="nav-btn" onclick="show(3,this)">4. Payment &amp; acceptance</button>
+  <button class="nav-btn" onclick="show(4,this)">5. Formal app review</button>
+  <button class="nav-btn" onclick="show(5,this)">6. RFI workspace</button>
+  <button class="nav-btn" onclick="show(6,this)">7. Consultation</button>
+  <button class="nav-btn" onclick="show(7,this)">8. Objections / inquiry</button>
+  <button class="nav-btn" onclick="show(8,this)">9. Decision &amp; publication</button>
+  <button class="nav-btn" onclick="show(9,this)">10. Team leader dashboard</button>
+</div>
+
+<!-- S1: QUEUE -->
+<div class="sf-shell screen active" id="s0">
+  <div class="screen-label">Screen 1 — CPO case queue / list view &nbsp;|&nbsp; Users: all DESNZ case officers, senior case officers, team leaders</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; CPO Case Management</span><input class="sf-topbar-search" placeholder="Search cases, applicants..."><div class="sf-topbar-icons"><div class="sf-topbar-icon">&#9733;</div><div class="sf-topbar-icon">&#9993;</div><div class="sf-topbar-icon" style="background:#ba0517">3</div></div></div>
+  <div class="sf-tabbar"><div class="sf-tabbar-tab active">CPO Cases <span class="tab-close">&#215;</span></div><div class="sf-tabbar-tab">My Tasks <span class="tab-close">&#215;</span></div></div>
+  <div style="padding:12px 16px;background:#fff;border-bottom:1px solid #dddbda">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div class="sf-obj-icon blue">C</div>
+      <div><div style="font-size:16px;font-weight:600;color:#1b1b1b">CPO Cases</div><div style="font-size:11px;color:#5a5a5a">42 items &bull; Sorted by Date Received &bull; Filtered: Stage = All active</div></div>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="sf-btn">My Cases</button><button class="sf-btn">All Cases</button><button class="sf-btn">Unassigned (3)</button><button class="sf-btn primary">+ New Case</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <span style="font-size:11px;padding:3px 8px;background:#e8f0fe;color:#0070d2;border-radius:10px">Stage: All active &#215;</span>
+      <span style="font-size:11px;padding:3px 8px;background:#e8f0fe;color:#0070d2;border-radius:10px">Owner: My team &#215;</span>
+      <span style="font-size:11px;padding:3px 8px;background:#f3f2f2;color:#5a5a5a;border-radius:10px">+ Add filter</span>
+    </div>
+  </div>
+  <div style="padding:0 16px 16px;overflow-x:auto;background:#fff">
+    <table class="sf-list-table" style="margin-top:10px">
+      <thead><tr><th style="width:24px"></th><th>CPO Ref &#8597;</th><th>Applicant / DNO</th><th>Project Name</th><th>Stage</th><th>Received</th><th>Decision Deadline</th><th>RAG</th><th>Case Officer</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><input type="checkbox"></td><td class="td-link">CPO-2026-0041</td><td>National Grid ESO</td><td>Bramford-Twinstead 400kV</td><td><span class="f-value tag-amber">Validation</span></td><td>14 Jan 2026</td><td style="color:#ba0517;font-weight:600">12 Apr 2026 &#9888;</td><td><span class="rag red"></span></td><td>A. Hassan</td><td class="td-link">Open</td></tr>
+        <tr><td><input type="checkbox"></td><td class="td-link">CPO-2026-0038</td><td>SP Manweb plc</td><td>Wrexham Substation Expansion</td><td><span class="f-value tag-blue">Formal App Review</span></td><td>8 Jan 2026</td><td>3 Jun 2026</td><td><span class="rag amber"></span></td><td>S. Fekkak</td><td class="td-link">Open</td></tr>
+        <tr><td><input type="checkbox"></td><td class="td-link">CPO-2025-0031</td><td>Electricity North West</td><td>Barrow Offshore Grid Connect</td><td><span class="f-value tag-red">Objections / Inquiry</span></td><td>20 Nov 2025</td><td>18 May 2026</td><td><span class="rag red"></span></td><td>M. Oyelaran</td><td class="td-link">Open</td></tr>
+        <tr><td><input type="checkbox"></td><td class="td-link">CPO-2025-0029</td><td>SSEN Transmission</td><td>Kintore–Tealing 275kV Line</td><td><span class="f-value tag-blue">Consultation</span></td><td>5 Nov 2025</td><td>10 Jul 2026</td><td><span class="rag green"></span></td><td>A. Hassan</td><td class="td-link">Open</td></tr>
+        <tr><td><input type="checkbox"></td><td class="td-link">CPO-2025-0024</td><td>UK Power Networks</td><td>Richborough HVDC Connection</td><td><span class="f-value tag-green">Decision</span></td><td>14 Sep 2025</td><td style="color:#ba6400;font-weight:600">30 Apr 2026</td><td><span class="rag amber"></span></td><td>S. Fekkak</td><td class="td-link">Open</td></tr>
+        <tr><td><input type="checkbox"></td><td class="td-link">CPO-2025-0019</td><td>National Grid EP</td><td>Wylfa Grid Connection</td><td><span class="f-value tag-gray">Pre-App</span></td><td>1 Aug 2025</td><td>—</td><td><span class="rag green"></span></td><td>M. Oyelaran</td><td class="td-link">Open</td></tr>
+        <tr><td><input type="checkbox"></td><td style="color:#ba0517;font-style:italic">Unallocated</td><td>Vattenfall UK</td><td>Norfolk Vanguard West</td><td><span class="f-value tag-gray">Pre-App</span></td><td>10 Apr 2026</td><td>—</td><td><span class="rag red"></span></td><td style="color:#ba0517">— Unassigned</td><td class="td-link">Assign</td></tr>
+      </tbody>
+    </table>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:11px;color:#5a5a5a">
+      <div>Showing 7 of 42 &bull; <span style="color:#0070d2">Load more</span></div>
+      <div style="display:flex;gap:4px"><button class="sf-btn">&#8592; Prev</button><button class="sf-btn">Next &#8594;</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- S2: CASE RECORD -->
+<div class="sf-shell screen" id="s1">
+  <div class="screen-label">Screen 2 — CPO case record page &nbsp;|&nbsp; Users: Case Officer, Senior Case Officer</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; CPO Case Management</span><input class="sf-topbar-search" placeholder="Search..."><div class="sf-topbar-icons"><div class="sf-topbar-icon" style="background:#ba0517">3</div></div></div>
+  <div class="sf-tabbar"><div class="sf-tabbar-tab">CPO Cases <span class="tab-close">&#215;</span></div><div class="sf-tabbar-tab active">CPO-2026-0041 <span class="tab-close">&#215;</span></div></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon blue">C</div>CPO-2026-0041 &mdash; Bramford-Twinstead 400kV</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Case Type</div><div class="hf-value">CPO &mdash; Grid Infrastructure</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Applicant</div><div class="hf-value link">National Grid ESO</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Stage</div><div class="hf-value status-review">Validation</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Received</div><div class="hf-value">14 Jan 2026</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Decision Deadline</div><div class="hf-value status-risk">12 Apr 2026 &#9888;</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Case Officer</div><div class="hf-value link">A. Hassan</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">RAG Status</div><div class="hf-value status-risk">Red</div></div>
+    <div style="margin-left:auto;display:flex;gap:6px"><button class="sf-btn primary">Advance Stage</button><button class="sf-btn">&#8942; More</button></div>
+  </div>
+  <div class="sf-path-bar">
+    <span class="sf-path-node done">&#10003; Pre-App</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node done">&#10003; Payment</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node done">&#10003; Formal App</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node active">&#9679; Validation</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node">Consultation</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node">Objections</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node">Decision</span><span class="sf-path-arrow">&#8250;</span>
+    <span class="sf-path-node">Closed</span>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-banner warn">&#9888; 2 open RFIs awaiting applicant response — first due 15 Apr 2026</div>
+      <div class="sf-tab-row"><div class="sf-tab active">Case Details</div><div class="sf-tab">Documents (14)</div><div class="sf-tab">RFIs (3)</div><div class="sf-tab">Consultation</div><div class="sf-tab">Objections</div><div class="sf-tab">Decision</div><div class="sf-tab">Activity</div></div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Applicant &amp; project details</div>
+        <div class="sf-fields-grid">
+          <div class="sf-field"><div class="f-label">Applicant name</div><div class="f-value link">National Grid ESO</div></div>
+          <div class="sf-field"><div class="f-label">Applicant contact</div><div class="f-value">J. Bartholomew</div></div>
+          <div class="sf-field"><div class="f-label">Project description</div><div class="f-value">400kV overhead line, 14km</div></div>
+          <div class="sf-field"><div class="f-label">Affected area</div><div class="f-value">Suffolk / Essex boundary</div></div>
+          <div class="sf-field"><div class="f-label">Order type</div><div class="f-value">Made CPO under s.37 EA1989</div></div>
+          <div class="sf-field"><div class="f-label">Estimated land parcels</div><div class="f-value">42 parcels</div></div>
+        </div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Key dates &amp; statutory timescales</div>
+        <div class="sf-fields-grid">
+          <div class="sf-field"><div class="f-label">Application received</div><div class="f-value">14 Jan 2026</div></div>
+          <div class="sf-field"><div class="f-label">Validation deadline</div><div class="f-value" style="color:#ba0517;font-weight:600">12 Apr 2026 &#9888;</div></div>
+          <div class="sf-field"><div class="f-label">Pre-app meeting held</div><div class="f-value">3 Oct 2025</div></div>
+          <div class="sf-field"><div class="f-label">Acceptance to proceed</div><div class="f-value tag-green">Accepted — 12 Nov 2025</div></div>
+          <div class="sf-field"><div class="f-label">Payment confirmed</div><div class="f-value tag-green">&#10003; £14,500 — 18 Nov 2025</div></div>
+          <div class="sf-field"><div class="f-label">Formal app submitted</div><div class="f-value">14 Jan 2026</div></div>
+        </div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Mandatory document checklist</div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Made Compulsory Purchase Order</span><span class="f-value tag-green" style="margin-left:auto">Received 14 Jan</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Order maps (schedule of land)</span><span class="f-value tag-green" style="margin-left:auto">Received 14 Jan</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Statement of Reasons</span><span class="f-value tag-green" style="margin-left:auto">Received 14 Jan</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Planning permission / deemed consent evidence</span><span class="f-value tag-green" style="margin-left:auto">Received</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox" style="border-color:#ba0517"></div><span style="flex:1;color:#5a5a5a">Environmental Statement <span style="color:#ba0517">— RFI-002 issued, awaiting response</span></span><span class="f-value tag-red" style="margin-left:auto">Outstanding</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Notice service evidence (s.12)</span><span class="f-value tag-green" style="margin-left:auto">Received 14 Jan</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox" style="border-color:#ba0517"></div><span style="flex:1;color:#5a5a5a">Notice affidavit (statutory declaration) <span style="color:#ba0517">— RFI-003 issued</span></span><span class="f-value tag-red" style="margin-left:auto">Outstanding</span></div>
+      </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-actions-panel"><div class="ap-title">Quick actions</div>
+        <div class="sf-btn-group col"><button class="sf-btn">+ Create RFI</button><button class="sf-btn">+ Log contact</button><button class="sf-btn">+ Upload document</button><button class="sf-btn">Send Notify email</button><button class="sf-btn destructive">Flag as at risk</button></div>
+      </div>
+      <div class="sf-deadline-card risk"><div class="dc-label">Validation deadline</div><div class="dc-value">12 Apr 2026</div><div class="dc-remaining overdue">&#9888; 1 day remaining</div></div>
+      <div class="sf-deadline-card warn"><div class="dc-label">RFI-002 response due</div><div class="dc-value">15 Apr 2026</div><div class="dc-remaining warn">4 days remaining</div></div>
+      <div class="sf-owner-card"><div class="sf-avatar" style="background:#0070d2">AH</div><div><div class="oc-name">A. Hassan</div><div class="oc-role">Case Officer</div></div></div>
+      <div class="sf-owner-card"><div class="sf-avatar" style="background:#7f8de1">SF</div><div><div class="oc-name">S. Fekkak</div><div class="oc-role">Senior Case Officer</div></div></div>
+      <div class="sf-related-list">
+        <div class="sf-rl-header"><span class="rl-title">Open RFIs</span><span class="rl-count">2</span><span class="rl-btn">+ New</span></div>
+        <div class="sf-rl-row"><span class="rl-name">RFI-002 — Environmental Statement</span><span class="rl-meta"><span class="f-value tag-amber" style="font-size:10px">Awaiting</span></span></div>
+        <div class="sf-rl-row"><span class="rl-name">RFI-003 — Notice affidavit</span><span class="rl-meta"><span class="f-value tag-amber" style="font-size:10px">Awaiting</span></span></div>
+      </div>
+      <div class="sf-related-list">
+        <div class="sf-rl-header"><span class="rl-title">Recent activity</span><span class="rl-btn">View all</span></div>
+        <div class="sf-rl-row"><span class="rl-name">RFI-003 sent to applicant</span><span class="rl-meta">Today</span></div>
+        <div class="sf-rl-row"><span class="rl-name">Order maps v2 uploaded</span><span class="rl-meta">9 Apr</span></div>
+        <div class="sf-rl-row"><span class="rl-name">Stage advanced: Validation</span><span class="rl-meta">14 Jan</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S3: PRE-APP -->
+<div class="sf-shell screen" id="s2">
+  <div class="screen-label">Screen 3 — Pre-application review workspace &nbsp;|&nbsp; Users: Case Officer, Senior Case Officer</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; CPO Case Management</span><input class="sf-topbar-search" placeholder="Search..."></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon purple">P</div>Pre-Application — CPO-PREAPP-2025-082 &mdash; Wylfa Grid Connection</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Applicant</div><div class="hf-value link">National Grid EP</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Submitted</div><div class="hf-value">1 Aug 2025</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Pre-App Status</div><div class="hf-value status-review">Meeting Requested</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Meeting Date</div><div class="hf-value">22 Apr 2026</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Assigned Officer</div><div class="hf-value link">M. Oyelaran</div></div>
+    <div style="margin-left:auto"><button class="sf-btn primary">Record Meeting Outcome</button></div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-tab-row"><div class="sf-tab active">Pre-App Details</div><div class="sf-tab">Meeting Notes</div><div class="sf-tab">Documents (3)</div><div class="sf-tab">Acceptance Decision</div></div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Pre-application request details</div>
+        <div class="sf-fields-grid">
+          <div class="sf-field"><div class="f-label">Project type</div><div class="f-value">New overhead line — 400kV</div></div>
+          <div class="sf-field"><div class="f-label">Location / corridor</div><div class="f-value">Anglesey, North Wales</div></div>
+          <div class="sf-field"><div class="f-label">Approximate land parcels</div><div class="f-value">~60–80 (early estimate)</div></div>
+          <div class="sf-field"><div class="f-label">Planning status</div><div class="f-value tag-amber">DCO pending</div></div>
+          <div class="sf-field"><div class="f-label">Urgency indicated</div><div class="f-value">Yes — 2028 energisation</div></div>
+          <div class="sf-field"><div class="f-label">Pre-app fee paid</div><div class="f-value tag-green">&#10003; £2,500</div></div>
+        </div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Pre-application meeting</div>
+        <div class="sf-fields-grid">
+          <div class="sf-field"><div class="f-label">Meeting requested</div><div class="f-value">8 Aug 2025</div></div>
+          <div class="sf-field"><div class="f-label">Meeting confirmed</div><div class="f-value">22 Apr 2026, 10:00</div></div>
+          <div class="sf-field"><div class="f-label">DESNZ attendees</div><div class="f-value">M. Oyelaran, S. Fekkak</div></div>
+          <div class="sf-field"><div class="f-label">Applicant attendees</div><div class="f-value">J. Hartley, K. Patel</div></div>
+          <div class="sf-field"><div class="f-label">Format</div><div class="f-value">Video call (Teams)</div></div>
+          <div class="sf-field"><div class="f-label">Notes status</div><div class="f-value tag-amber">Not yet recorded</div></div>
+        </div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Internal review notes</div>
+        <div class="sf-textarea-mock">Add internal review notes — eligibility assessment, issues to raise at meeting, legal or policy concerns...</div>
+        <div class="sf-btn-group"><button class="sf-btn">Save note</button><button class="sf-btn">Save &amp; send to Senior Officer</button></div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Acceptance to proceed decision</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+          <div class="dec-opt selected">&#10003; Accept to Proceed</div>
+          <div class="dec-opt">&#9888; Further Info Required</div>
+          <div class="dec-opt">&#10007; Not Accepted</div>
+        </div>
+        <div style="font-size:11px;color:#5a5a5a">Decision requires Senior Case Officer sign-off before notification is sent to applicant.</div>
+      </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-actions-panel"><div class="ap-title">Actions</div>
+        <div class="sf-btn-group col"><button class="sf-btn">Send meeting invite</button><button class="sf-btn">+ Upload document</button><button class="sf-btn">Log email contact</button><button class="sf-btn primary">Record outcome &#8594;</button></div>
+      </div>
+      <div class="sf-deadline-card warn"><div class="dc-label">Meeting date</div><div class="dc-value">22 Apr 2026</div><div class="dc-remaining warn">9 days away</div></div>
+      <div class="sf-related-list">
+        <div class="sf-rl-header"><span class="rl-title">Pre-App documents</span><span class="rl-count">3</span></div>
+        <div class="doc-row"><div class="doc-icon">PDF</div><span class="doc-name">Pre-App Form — Wylfa.pdf</span></div>
+        <div class="doc-row"><div class="doc-icon">PDF</div><span class="doc-name">Project description.pdf</span></div>
+        <div class="doc-row"><div class="doc-icon">MAP</div><span class="doc-name">Indicative route map.pdf</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S4: PAYMENT -->
+<div class="sf-shell screen" id="s3">
+  <div class="screen-label">Screen 4 — Payment &amp; acceptance to proceed &nbsp;|&nbsp; Users: Case Officer, Senior Case Officer</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; CPO Case Management</span><input class="sf-topbar-search" placeholder="Search..."></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon green">£</div>Payment &amp; Acceptance — CPO-PREAPP-2025-077 &mdash; Wrexham Substation</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Applicant</div><div class="hf-value link">SP Manweb plc</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Payment status</div><div class="hf-value status-valid">Confirmed &#10003;</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Amount received</div><div class="hf-value">£14,500</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Payment date</div><div class="hf-value">18 Nov 2025</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Acceptance status</div><div class="hf-value status-valid">Accepted to Proceed</div></div>
+    <div style="margin-left:auto"><button class="sf-btn primary">Issue Acceptance Letter &#8594;</button></div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-tab-row"><div class="sf-tab active">Payment Details</div><div class="sf-tab">Acceptance Decision</div><div class="sf-tab">Letters &amp; Notifications</div></div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Payment record</div>
+        <div class="sf-fields-grid">
+          <div class="sf-field"><div class="f-label">Fee schedule</div><div class="f-value">CPO Standard Fee 2024-25</div></div>
+          <div class="sf-field"><div class="f-label">Fee calculated</div><div class="f-value">£14,500.00</div></div>
+          <div class="sf-field"><div class="f-label">Invoice reference</div><div class="f-value">INV-2025-0441</div></div>
+          <div class="sf-field"><div class="f-label">Invoice issued</div><div class="f-value">5 Nov 2025</div></div>
+          <div class="sf-field"><div class="f-label">Payment method</div><div class="f-value">BACS transfer</div></div>
+          <div class="sf-field"><div class="f-label">Confirmed by</div><div class="f-value">Finance team</div></div>
+          <div class="sf-field"><div class="f-label">Payment date</div><div class="f-value tag-green">18 Nov 2025 &#10003;</div></div>
+          <div class="sf-field"><div class="f-label">Receipt issued</div><div class="f-value tag-green">18 Nov 2025 &#10003;</div></div>
+        </div>
+      </div>
+      <div class="sf-banner success">&#10003; Payment confirmed — case is eligible to advance to formal application stage</div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Acceptance to proceed decision</div>
+        <div class="sf-fields-grid">
+          <div class="sf-field"><div class="f-label">Decision</div><div class="f-value tag-green">Accepted to Proceed</div></div>
+          <div class="sf-field"><div class="f-label">Decision date</div><div class="f-value">20 Nov 2025</div></div>
+          <div class="sf-field"><div class="f-label">Decision made by</div><div class="f-value">S. Fekkak (Senior CO)</div></div>
+          <div class="sf-field"><div class="f-label">Rationale</div><div class="f-value">All pre-app criteria met</div></div>
+        </div>
+        <div class="section-divider"></div>
+        <div class="sf-field"><div class="f-label" style="margin-bottom:4px">Decision notes</div><div class="f-value" style="font-size:12px;line-height:1.5">Full planning permission in place. Pre-app submission complete and coherent. No eligibility concerns. Payment confirmed. Applicant may now proceed to submit formal CPO application within 12 months.</div></div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Acceptance letter &amp; notifications</div>
+        <div class="sf-fields-grid">
+          <div class="sf-field"><div class="f-label">Acceptance letter</div><div class="f-value tag-amber">Draft ready — not yet sent</div></div>
+          <div class="sf-field"><div class="f-label">Notify email</div><div class="f-value tag-amber">Not yet triggered</div></div>
+        </div>
+        <div class="sf-btn-group" style="margin-top:8px"><button class="sf-btn">Preview letter</button><button class="sf-btn primary">Issue acceptance letter &amp; send Notify</button></div>
+      </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-actions-panel"><div class="ap-title">Actions</div>
+        <div class="sf-btn-group col"><button class="sf-btn">Confirm payment manually</button><button class="sf-btn">Issue refund</button><button class="sf-btn primary">Issue acceptance letter</button><button class="sf-btn">Advance to formal app</button></div>
+      </div>
+      <div class="sf-deadline-card ok"><div class="dc-label">Payment gate</div><div class="dc-value">Cleared</div><div class="dc-remaining ok">&#10003; Eligible to advance</div></div>
+      <div class="sf-deadline-card ok"><div class="dc-label">Formal app window closes</div><div class="dc-value">18 Nov 2026</div><div class="dc-remaining ok">219 days remaining</div></div>
+      <div class="sf-related-list">
+        <div class="sf-rl-header"><span class="rl-title">Documents</span><span class="rl-count">2</span></div>
+        <div class="doc-row"><div class="doc-icon">PDF</div><span class="doc-name">INV-2025-0441.pdf</span></div>
+        <div class="doc-row"><div class="doc-icon">PDF</div><span class="doc-name">Receipt-Nov2025.pdf</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S5: FORMAL APP VALIDATION -->
+<div class="sf-shell screen" id="s4">
+  <div class="screen-label">Screen 5 — Formal application review / validation workspace &nbsp;|&nbsp; Users: Case Officer, Senior Case Officer</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; CPO Case Management</span><input class="sf-topbar-search" placeholder="Search..."></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon blue">V</div>Formal Application Validation — CPO-2026-0041 &mdash; Bramford-Twinstead 400kV</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Validation status</div><div class="hf-value status-review">In progress</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Received</div><div class="hf-value">14 Jan 2026</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Validation deadline</div><div class="hf-value status-risk">12 Apr 2026 &#9888;</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Open RFIs</div><div class="hf-value status-risk">2 open</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Completeness</div><div class="hf-value">5 / 7 mandatory docs</div></div>
+    <div style="margin-left:auto"><button class="sf-btn primary">Mark Valid &amp; Advance &#8594;</button></div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-tab-row"><div class="sf-tab active">Validation checklist</div><div class="sf-tab">Documents (14)</div><div class="sf-tab">RFIs (3)</div><div class="sf-tab">Enquiry log</div></div>
+      <div class="sf-banner error">&#9888; 2 mandatory documents outstanding — validation cannot be completed until all RFIs are resolved</div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Mandatory document validation</div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Made Compulsory Purchase Order</span><span class="f-value tag-green" style="margin-left:auto">Received 14 Jan</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Order maps — schedule of land</span><span class="f-value tag-green" style="margin-left:auto">Received 14 Jan</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Statement of Reasons</span><span class="f-value tag-green" style="margin-left:auto">Received 14 Jan</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Notice service evidence (s.12)</span><span class="f-value tag-green" style="margin-left:auto">Received 14 Jan</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Newspaper advertisement evidence</span><span class="f-value tag-green" style="margin-left:auto">Received 9 Apr (v2)</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox" style="border-color:#ba0517"></div><span style="flex:1;color:#5a5a5a">Environmental Statement <span style="color:#ba0517">— RFI-002 awaiting response</span></span><span class="f-value tag-red" style="margin-left:auto">Outstanding</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox" style="border-color:#ba0517"></div><span style="flex:1;color:#5a5a5a">Notice affidavit (statutory declaration) <span style="color:#ba0517">— RFI-003 awaiting response</span></span><span class="f-value tag-red" style="margin-left:auto">Outstanding</span></div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Supporting documents (non-mandatory)</div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Planning permission (EA2013 s.14)</span><span class="f-value tag-green" style="margin-left:auto">Received</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Land interests schedule</span><span class="f-value tag-green" style="margin-left:auto">Received</span></div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Validation outcome</div>
+        <div class="sf-textarea-mock">Record validation outcome rationale — note waivers, outstanding issues, or conditions...</div>
+        <div class="sf-btn-group"><button class="sf-btn success">Mark as Valid</button><button class="sf-btn">Mark as Invalid</button><button class="sf-btn">Request extension</button></div>
+      </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-actions-panel"><div class="ap-title">Actions</div>
+        <div class="sf-btn-group col"><button class="sf-btn primary">+ Create RFI</button><button class="sf-btn">+ Upload document</button><button class="sf-btn">Request deadline extension</button><button class="sf-btn">Escalate to Senior CO</button></div>
+      </div>
+      <div class="sf-deadline-card risk"><div class="dc-label">Validation deadline</div><div class="dc-value">12 Apr 2026</div><div class="dc-remaining overdue">&#9888; 1 day remaining</div></div>
+      <div style="background:#fff;border:1px solid #dddbda;border-radius:6px;padding:10px;margin-bottom:8px">
+        <div style="font-size:10px;color:#5a5a5a;margin-bottom:4px">Document completeness</div>
+        <div class="sf-progress-bar"><div class="pb-fill" style="width:71%"></div></div>
+        <div style="font-size:11px;color:#5a5a5a">5 of 7 mandatory docs (71%)</div>
+      </div>
+      <div class="sf-related-list">
+        <div class="sf-rl-header"><span class="rl-title">Open RFIs</span><span class="rl-count">2</span></div>
+        <div class="sf-rl-row"><span class="rl-name">RFI-002 — Environmental Statement</span><span class="rl-meta"><span class="f-value tag-red" style="font-size:10px">Due 15 Apr</span></span></div>
+        <div class="sf-rl-row"><span class="rl-name">RFI-003 — Notice affidavit</span><span class="rl-meta"><span class="f-value tag-amber" style="font-size:10px">Due 15 Apr</span></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S6: RFI -->
+<div class="sf-shell screen" id="s5">
+  <div class="screen-label">Screen 6 — Request for further information (RFI) workspace &nbsp;|&nbsp; Users: Case Officer</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; CPO Case Management</span><input class="sf-topbar-search" placeholder="Search..."></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon amber">?</div>RFI-002 — Environmental Statement &mdash; CPO-2026-0041</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">RFI type</div><div class="hf-value">Missing mandatory document</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Status</div><div class="hf-value status-review">Awaiting response</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Issued</div><div class="hf-value">20 Mar 2026</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Response due</div><div class="hf-value status-risk">15 Apr 2026 &#9888;</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Issued by</div><div class="hf-value link">A. Hassan</div></div>
+    <div style="margin-left:auto"><button class="sf-btn success">Mark Resolved &#10003;</button></div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-tab-row"><div class="sf-tab active">RFI Details</div><div class="sf-tab">Correspondence</div><div class="sf-tab">Uploaded responses (0)</div></div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">RFI request content</div>
+        <div class="sf-field" style="margin-bottom:10px"><div class="f-label">RFI subject</div><div class="f-value" style="font-size:13px;font-weight:600;margin-top:2px">Environmental Statement — not submitted with application</div></div>
+        <div class="sf-field"><div class="f-label">RFI text (sent to applicant via Notify)</div>
+          <div style="background:#f8f7f6;border:1px solid #dddbda;border-radius:6px;padding:10px;font-size:12px;color:#1b1b1b;margin-top:4px;line-height:1.6">We have reviewed your Compulsory Purchase Order application for the Bramford-Twinstead 400kV project (ref: CPO-2026-0041). We note that no Environmental Statement has been provided. Under the Infrastructure Planning (Environmental Impact Assessment) Regulations 2017, an Environmental Statement is required to accompany this application. Please submit the Environmental Statement within 21 days of the date of this notice.</div>
+        </div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Applicant response</div>
+        <div class="sf-banner info">No response received yet — deadline 15 Apr 2026. When the applicant uploads a response via the portal it will appear here.</div>
+        <div class="sf-btn-group"><button class="sf-btn">Chase applicant (send Notify)</button><button class="sf-btn">Extend deadline</button><button class="sf-btn destructive">Escalate — no response</button></div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Officer review of applicant response</div>
+        <div class="sf-textarea-mock">Record your assessment of the applicant's response — is it sufficient? Any further action required?</div>
+        <div class="sf-btn-group"><button class="sf-btn success">Mark RFI resolved</button><button class="sf-btn">Issue follow-up RFI</button><button class="sf-btn">Reject — insufficient response</button></div>
+      </div>
+      <div class="sf-activity">
+        <div class="act-header">Correspondence log</div>
+        <div class="act-item"><div class="act-icon email">@</div><div class="act-body"><div class="act-title">RFI-002 issued — Notify email sent to J. Bartholomew (NG ESO)</div><div class="act-meta">A. Hassan &mdash; 20 Mar 2026</div></div></div>
+        <div class="act-item"><div class="act-icon task">T</div><div class="act-body"><div class="act-title">RFI-002 created — Environmental Statement missing from submission</div><div class="act-meta">A. Hassan &mdash; 20 Mar 2026</div></div></div>
+      </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-actions-panel"><div class="ap-title">Actions</div>
+        <div class="sf-btn-group col"><button class="sf-btn">Chase applicant</button><button class="sf-btn">Extend deadline</button><button class="sf-btn success">Mark resolved</button><button class="sf-btn destructive">Escalate</button></div>
+      </div>
+      <div class="sf-deadline-card risk"><div class="dc-label">Response due</div><div class="dc-value">15 Apr 2026</div><div class="dc-remaining overdue">&#9888; 4 days remaining</div></div>
+      <div class="sf-related-list">
+        <div class="sf-rl-header"><span class="rl-title">Other RFIs — this case</span><span class="rl-count">2</span></div>
+        <div class="sf-rl-row"><span class="rl-name">RFI-001 — Order maps (resolved)</span><span class="rl-meta"><span class="f-value tag-green" style="font-size:10px">Resolved</span></span></div>
+        <div class="sf-rl-row"><span class="rl-name">RFI-003 — Notice affidavit</span><span class="rl-meta"><span class="f-value tag-amber" style="font-size:10px">Open</span></span></div>
+      </div>
+      <div class="sf-owner-card"><div class="sf-avatar" style="background:#0070d2">AH</div><div><div class="oc-name">A. Hassan</div><div class="oc-role">Case Officer — RFI owner</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S7: CONSULTATION -->
+<div class="sf-shell screen" id="s6">
+  <div class="screen-label">Screen 7 — Consultation / stakeholder management &nbsp;|&nbsp; Users: Case Officer, Senior Case Officer</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; CPO Case Management</span><input class="sf-topbar-search" placeholder="Search..."></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon green">S</div>Consultation — CPO-2025-0029 &mdash; Kintore–Tealing 275kV</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Consultation status</div><div class="hf-value status-review">Open</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Opened</div><div class="hf-value">3 Feb 2026</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Closes</div><div class="hf-value">30 Apr 2026</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Parties notified</div><div class="hf-value">34</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Representations</div><div class="hf-value">12 received</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Objections</div><div class="hf-value status-risk">2</div></div>
+    <div style="margin-left:auto"><button class="sf-btn primary">Close Consultation &#8594;</button></div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-tab-row"><div class="sf-tab active">Interested parties (34)</div><div class="sf-tab">Representations (12)</div><div class="sf-tab">Statutory notices</div><div class="sf-tab">Consultation summary</div></div>
+      <div class="sf-btn-group" style="margin-bottom:10px"><button class="sf-btn primary">+ Add interested party</button><button class="sf-btn">Send bulk Notify</button><button class="sf-btn">Export list</button></div>
+      <div style="background:#fff;border:1px solid #dddbda;border-radius:6px;overflow:hidden;margin-bottom:12px">
+        <table class="sf-list-table">
+          <thead><tr><th></th><th>Party name</th><th>Type</th><th>Notified</th><th>Representation</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><input type="checkbox"></td><td class="td-link">Aberdeenshire Council</td><td style="font-size:11px">Statutory consultee</td><td>3 Feb 2026</td><td class="td-link">View</td><td><span class="f-value tag-green" style="font-size:11px">Received</span></td><td class="td-link" style="font-size:11px">&#8942;</td></tr>
+            <tr><td><input type="checkbox"></td><td class="td-link">NatureScot</td><td style="font-size:11px">Statutory consultee</td><td>3 Feb 2026</td><td class="td-link">View</td><td><span class="f-value tag-green" style="font-size:11px">Received</span></td><td class="td-link" style="font-size:11px">&#8942;</td></tr>
+            <tr><td><input type="checkbox"></td><td class="td-link">Drumrossie Estate Ltd</td><td style="font-size:11px">Landowner</td><td>3 Feb 2026</td><td style="color:#9b9b9b">—</td><td><span class="f-value tag-amber" style="font-size:11px">Awaited</span></td><td class="td-link" style="font-size:11px">&#8942;</td></tr>
+            <tr><td><input type="checkbox"></td><td class="td-link">Kintore Community Council</td><td style="font-size:11px">Interested party</td><td>3 Feb 2026</td><td class="td-link">View</td><td><span class="f-value tag-red" style="font-size:11px">Objection</span></td><td class="td-link" style="font-size:11px">&#8942;</td></tr>
+            <tr><td><input type="checkbox"></td><td class="td-link">SEPA</td><td style="font-size:11px">Statutory consultee</td><td>3 Feb 2026</td><td style="color:#9b9b9b">—</td><td><span class="f-value tag-amber" style="font-size:11px">Awaited</span></td><td class="td-link" style="font-size:11px">&#8942;</td></tr>
+            <tr><td><input type="checkbox"></td><td class="td-link">J. &amp; M. Urquhart</td><td style="font-size:11px">Landowner</td><td>3 Feb 2026</td><td class="td-link">View</td><td><span class="f-value tag-red" style="font-size:11px">Objection</span></td><td class="td-link" style="font-size:11px">&#8942;</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Consultation progress summary</div>
+        <div class="sf-kpi-grid">
+          <div class="sf-kpi"><div class="kpi-n">34</div><div class="kpi-label">Notified</div></div>
+          <div class="sf-kpi"><div class="kpi-n green">10</div><div class="kpi-label">Representations</div></div>
+          <div class="sf-kpi"><div class="kpi-n red">2</div><div class="kpi-label">Objections</div></div>
+          <div class="sf-kpi"><div class="kpi-n amber">22</div><div class="kpi-label">No response</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-actions-panel"><div class="ap-title">Actions</div>
+        <div class="sf-btn-group col"><button class="sf-btn">+ Add interested party</button><button class="sf-btn">Send bulk Notify</button><button class="sf-btn">Draft consultation letter</button><button class="sf-btn primary">Close consultation</button></div>
+      </div>
+      <div class="sf-deadline-card warn"><div class="dc-label">Consultation closes</div><div class="dc-value">30 Apr 2026</div><div class="dc-remaining warn">17 days remaining</div></div>
+      <div class="sf-related-list">
+        <div class="sf-rl-header"><span class="rl-title">Recent representations</span></div>
+        <div class="sf-rl-row"><span class="rl-name">Kintore CC — objection</span><span class="rl-meta">8 Apr</span></div>
+        <div class="sf-rl-row"><span class="rl-name">Aberdeenshire Council — support</span><span class="rl-meta">5 Apr</span></div>
+        <div class="sf-rl-row"><span class="rl-name">Urquhart — objection</span><span class="rl-meta">2 Apr</span></div>
+      </div>
+      <div class="sf-related-list">
+        <div class="sf-rl-header"><span class="rl-title">Statutory notices</span><span class="rl-count">3</span></div>
+        <div class="doc-row"><div class="doc-icon">PDF</div><span class="doc-name">Land Compensation Notice.pdf</span></div>
+        <div class="doc-row"><div class="doc-icon">PDF</div><span class="doc-name">s.12 Notice Schedule.pdf</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S8: OBJECTIONS -->
+<div class="sf-shell screen" id="s7">
+  <div class="screen-label">Screen 8 — Objections / inquiry management &nbsp;|&nbsp; Users: Case Officer, Senior Case Officer, Legal / Decision Support</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; CPO Case Management</span><input class="sf-topbar-search" placeholder="Search..."></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon red">!</div>Objections &amp; Inquiry — CPO-2025-0031 &mdash; Barrow Offshore Grid Connect</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Objections received</div><div class="hf-value status-risk">7 objections</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Inquiry status</div><div class="hf-value status-review">Inquiry appointed</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Inspector</div><div class="hf-value link">P. Fairweather (PINS)</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Inquiry opens</div><div class="hf-value">12 May 2026</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">PINS case ref</div><div class="hf-value link">PINS/A2270/CPO/26</div></div>
+    <div style="margin-left:auto"><button class="sf-btn primary">Submit Inquiry Bundle &#8594;</button></div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-tab-row"><div class="sf-tab active">Objections (7)</div><div class="sf-tab">Inquiry management</div><div class="sf-tab">PINS coordination</div><div class="sf-tab">Inspector report</div><div class="sf-tab">Correspondence</div></div>
+      <div class="sf-banner warn">&#9888; Inquiry opens 12 May 2026 — proof of evidence bundle due to PINS by 28 Apr 2026</div>
+      <div style="background:#fff;border:1px solid #dddbda;border-radius:6px;overflow:hidden;margin-bottom:12px">
+        <table class="sf-list-table">
+          <thead><tr><th>Objector</th><th>Type</th><th>Grounds</th><th>Received</th><th>Status</th><th>Withdrawing?</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="td-link">Barrow Port Authority</td><td style="font-size:11px">Statutory objector</td><td style="font-size:11px">Operational impact</td><td>8 Dec 2025</td><td><span class="f-value tag-red" style="font-size:11px">Proceeding</span></td><td style="font-size:11px">No</td><td class="td-link" style="font-size:11px">View</td></tr>
+            <tr><td class="td-link">Walney Island Residents Assoc.</td><td style="font-size:11px">Third party</td><td style="font-size:11px">Visual impact</td><td>10 Dec 2025</td><td><span class="f-value tag-amber" style="font-size:11px">Negotiating</span></td><td style="font-size:11px">TBC</td><td class="td-link" style="font-size:11px">View</td></tr>
+            <tr><td class="td-link">T. &amp; R. Sharpe (Landowners)</td><td style="font-size:11px">Landowner</td><td style="font-size:11px">Compensation terms</td><td>12 Dec 2025</td><td><span class="f-value tag-green" style="font-size:11px">Withdrawn</span></td><td style="font-size:11px;color:#2e844a">Yes — 2 Mar</td><td class="td-link" style="font-size:11px">View</td></tr>
+            <tr><td class="td-link">Cumbria CC — Highways</td><td style="font-size:11px">Statutory consultee</td><td style="font-size:11px">Construction access</td><td>15 Dec 2025</td><td><span class="f-value tag-red" style="font-size:11px">Proceeding</span></td><td style="font-size:11px">No</td><td class="td-link" style="font-size:11px">View</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Inquiry timetable &amp; milestones</div>
+        <div class="sf-fields-grid">
+          <div class="sf-field"><div class="f-label">Inspector appointed</div><div class="f-value tag-green">15 Jan 2026 &#10003;</div></div>
+          <div class="sf-field"><div class="f-label">Pre-inquiry meeting</div><div class="f-value tag-green">20 Feb 2026 &#10003;</div></div>
+          <div class="sf-field"><div class="f-label">Statement of case</div><div class="f-value tag-green">15 Mar 2026 &#10003;</div></div>
+          <div class="sf-field"><div class="f-label">Proof of evidence due</div><div class="f-value tag-amber">28 Apr 2026 — 15 days</div></div>
+          <div class="sf-field"><div class="f-label">Inquiry opens</div><div class="f-value">12 May 2026</div></div>
+          <div class="sf-field"><div class="f-label">Expected duration</div><div class="f-value">3 days</div></div>
+          <div class="sf-field"><div class="f-label">Inspector report expected</div><div class="f-value">Aug 2026</div></div>
+          <div class="sf-field"><div class="f-label">Decision expected</div><div class="f-value">Oct 2026</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-actions-panel"><div class="ap-title">Actions</div>
+        <div class="sf-btn-group col"><button class="sf-btn">+ Log objection</button><button class="sf-btn">Record withdrawal</button><button class="sf-btn">Issue PINS correspondence</button><button class="sf-btn primary">Submit inquiry bundle</button></div>
+      </div>
+      <div class="sf-deadline-card warn"><div class="dc-label">Proof of evidence due (PINS)</div><div class="dc-value">28 Apr 2026</div><div class="dc-remaining warn">15 days remaining</div></div>
+      <div class="sf-deadline-card risk"><div class="dc-label">Inquiry opens</div><div class="dc-value">12 May 2026</div><div class="dc-remaining warn">29 days</div></div>
+      <div class="sf-related-list">
+        <div class="sf-rl-header"><span class="rl-title">PINS correspondence</span><span class="rl-count">4</span></div>
+        <div class="doc-row"><div class="doc-icon">PDF</div><span class="doc-name">Inquiry timetable letter.pdf</span></div>
+        <div class="doc-row"><div class="doc-icon">PDF</div><span class="doc-name">Inspector appointment.pdf</span></div>
+      </div>
+      <div class="sf-owner-card"><div class="sf-avatar" style="background:#ba0517">MO</div><div><div class="oc-name">M. Oyelaran</div><div class="oc-role">Case Officer</div></div></div>
+      <div class="sf-owner-card"><div class="sf-avatar" style="background:#7f8de1">LT</div><div><div class="oc-name">L. Thorpe</div><div class="oc-role">Legal / Decision Support</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S9: DECISION -->
+<div class="sf-shell screen" id="s8">
+  <div class="screen-label">Screen 9 — Decision &amp; publication workspace &nbsp;|&nbsp; Users: Case Officer, Senior Case Officer, Legal / Decision Support</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; CPO Case Management</span><input class="sf-topbar-search" placeholder="Search..."></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon green">D</div>Decision — CPO-2025-0024 &mdash; Richborough HVDC Connection</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Decision status</div><div class="hf-value status-review">Draft under review</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Inspector report received</div><div class="hf-value">18 Mar 2026</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Inspector recommendation</div><div class="hf-value tag-green">Confirm CPO</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Decision target</div><div class="hf-value status-risk">30 Apr 2026 &#9888;</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Decision maker</div><div class="hf-value link">DESNZ Minister</div></div>
+    <div style="margin-left:auto"><button class="sf-btn primary">Submit for Sign-Off &#8594;</button></div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-tab-row"><div class="sf-tab active">Decision workflow</div><div class="sf-tab">Decision letter</div><div class="sf-tab">Inspector report</div><div class="sf-tab">Publication</div><div class="sf-tab">Case closure</div></div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Decision sign-off workflow</div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Inspector report received and filed</span><span style="font-size:11px;color:#2e844a;margin-left:auto">18 Mar 2026</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Legal / policy review of inspector report</span><span style="font-size:11px;color:#2e844a;margin-left:auto">28 Mar 2026</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox">&#10003;</div><span style="flex:1">Draft decision letter prepared</span><span style="font-size:11px;color:#2e844a;margin-left:auto">5 Apr 2026</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox" style="border-color:#ba6400"></div><span style="flex:1;color:#5a5a5a">Senior CO / Team Leader review</span><span class="f-value tag-amber" style="margin-left:auto">In review</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox" style="color:#ccc"></div><span style="flex:1;color:#9b9b9b">Legal sign-off</span><span style="font-size:11px;color:#9b9b9b;margin-left:auto">Pending</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox" style="color:#ccc"></div><span style="flex:1;color:#9b9b9b">Ministerial authorisation</span><span style="font-size:11px;color:#9b9b9b;margin-left:auto">Pending</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox" style="color:#ccc"></div><span style="flex:1;color:#9b9b9b">Decision letter issued to applicant</span><span style="font-size:11px;color:#9b9b9b;margin-left:auto">Pending</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox" style="color:#ccc"></div><span style="flex:1;color:#9b9b9b">Decision published on gov.uk / London Gazette</span><span style="font-size:11px;color:#9b9b9b;margin-left:auto">Pending</span></div>
+        <div class="sf-checkbox-row"><div class="sf-checkbox" style="color:#ccc"></div><span style="flex:1;color:#9b9b9b">Case closed</span><span style="font-size:11px;color:#9b9b9b;margin-left:auto">Pending</span></div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Decision outcome</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+          <div class="dec-opt selected">&#10003; Confirm CPO</div>
+          <div class="dec-opt">Confirm with modifications</div>
+          <div class="dec-opt">&#10007; Not confirm CPO</div>
+        </div>
+        <div class="sf-textarea-mock">Record decision rationale and any conditions or modifications to the confirmed order...</div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Publication &amp; notification</div>
+        <div class="sf-fields-grid">
+          <div class="sf-field"><div class="f-label">Publication route</div><div class="f-value">gov.uk &amp; London Gazette</div></div>
+          <div class="sf-field"><div class="f-label">Interested parties notified</div><div class="f-value tag-amber">Not yet</div></div>
+          <div class="sf-field"><div class="f-label">Applicant notified</div><div class="f-value tag-amber">Not yet</div></div>
+          <div class="sf-field"><div class="f-label">Portal status updated</div><div class="f-value tag-amber">Not yet</div></div>
+        </div>
+        <div class="sf-btn-group" style="margin-top:8px"><button class="sf-btn">Draft publication notice</button><button class="sf-btn primary">Publish decision &amp; notify all</button></div>
+      </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-actions-panel"><div class="ap-title">Actions</div>
+        <div class="sf-btn-group col"><button class="sf-btn">Submit for legal sign-off</button><button class="sf-btn">Submit for ministerial auth.</button><button class="sf-btn primary">Issue decision letter</button><button class="sf-btn">Publish on gov.uk</button><button class="sf-btn success">Close case</button></div>
+      </div>
+      <div class="sf-deadline-card risk"><div class="dc-label">Decision target</div><div class="dc-value">30 Apr 2026</div><div class="dc-remaining overdue">&#9888; 17 days remaining</div></div>
+      <div class="sf-related-list">
+        <div class="sf-rl-header"><span class="rl-title">Decision documents</span><span class="rl-count">3</span></div>
+        <div class="doc-row"><div class="doc-icon">PDF</div><span class="doc-name">Inspector report — final.pdf</span></div>
+        <div class="doc-row"><div class="doc-icon">PDF</div><span class="doc-name">Draft decision letter v2.pdf</span></div>
+        <div class="doc-row"><div class="doc-icon">DOC</div><span class="doc-name">Decision letter (track changes)</span></div>
+      </div>
+      <div class="sf-owner-card"><div class="sf-avatar" style="background:#7f8de1">LT</div><div><div class="oc-name">L. Thorpe</div><div class="oc-role">Legal / Decision Support</div></div></div>
+      <div class="sf-owner-card"><div class="sf-avatar" style="background:#7f8de1">SF</div><div><div class="oc-name">S. Fekkak</div><div class="oc-role">Senior Case Officer</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S10: DASHBOARD -->
+<div class="sf-shell screen" id="s9">
+  <div class="screen-label">Screen 10 — Team leader operational dashboard &nbsp;|&nbsp; Users: Senior Case Officer / Team Leader</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; CPO Case Management</span><input class="sf-topbar-search" placeholder="Search..."><div class="sf-topbar-icons"><div class="sf-topbar-icon" style="background:#ba0517">5</div></div></div>
+  <div style="padding:12px 16px;background:#fff;border-bottom:1px solid #dddbda">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <div class="sf-obj-icon purple">&#9783;</div>
+      <div style="font-size:16px;font-weight:600">CPO Team Dashboard &mdash; EIPD</div>
+      <div style="font-size:12px;color:#5a5a5a">As at 13 Apr 2026</div>
+      <div style="margin-left:auto;display:flex;gap:6px"><button class="sf-btn">Export report</button><button class="sf-btn primary">Assign unallocated</button></div>
+    </div>
+    <div class="sf-kpi-grid">
+      <div class="sf-kpi"><div class="kpi-n">42</div><div class="kpi-label">Total active cases</div></div>
+      <div class="sf-kpi"><div class="kpi-n red">6</div><div class="kpi-label">Red RAG status</div></div>
+      <div class="sf-kpi"><div class="kpi-n amber">11</div><div class="kpi-label">Amber RAG status</div></div>
+      <div class="sf-kpi"><div class="kpi-n red">3</div><div class="kpi-label">Unallocated cases</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div style="background:#f8f7f6;border:1px solid #dddbda;border-radius:6px;padding:12px">
+        <div style="font-size:11px;font-weight:600;color:#5a5a5a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Cases by stage</div>
+        <div class="sf-chart-bar">
+          <div class="sf-bar-row"><span class="bar-label">Pre-App</span><div class="bar-track"><div class="bar-fill" style="width:24%"></div></div><span class="bar-val">10</span></div>
+          <div class="sf-bar-row"><span class="bar-label">Validation</span><div class="bar-track"><div class="bar-fill" style="width:14%"></div></div><span class="bar-val">6</span></div>
+          <div class="sf-bar-row"><span class="bar-label">Formal App</span><div class="bar-track"><div class="bar-fill" style="width:19%"></div></div><span class="bar-val">8</span></div>
+          <div class="sf-bar-row"><span class="bar-label">Consultation</span><div class="bar-track"><div class="bar-fill" style="width:12%"></div></div><span class="bar-val">5</span></div>
+          <div class="sf-bar-row"><span class="bar-label">Objections</span><div class="bar-track"><div class="bar-fill amber" style="width:10%"></div></div><span class="bar-val">4</span></div>
+          <div class="sf-bar-row"><span class="bar-label">Decision</span><div class="bar-track"><div class="bar-fill red" style="width:17%"></div></div><span class="bar-val">7</span></div>
+          <div class="sf-bar-row"><span class="bar-label">Closed (YTD)</span><div class="bar-track"><div class="bar-fill green" style="width:5%"></div></div><span class="bar-val">2</span></div>
+        </div>
+      </div>
+      <div style="background:#f8f7f6;border:1px solid #dddbda;border-radius:6px;padding:12px">
+        <div style="font-size:11px;font-weight:600;color:#5a5a5a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Cases by officer</div>
+        <div class="sf-chart-bar">
+          <div class="sf-bar-row"><span class="bar-label">A. Hassan</span><div class="bar-track"><div class="bar-fill" style="width:38%"></div></div><span class="bar-val">16</span></div>
+          <div class="sf-bar-row"><span class="bar-label">M. Oyelaran</span><div class="bar-track"><div class="bar-fill" style="width:29%"></div></div><span class="bar-val">12</span></div>
+          <div class="sf-bar-row"><span class="bar-label">S. Fekkak</span><div class="bar-track"><div class="bar-fill" style="width:21%"></div></div><span class="bar-val">9</span></div>
+          <div class="sf-bar-row"><span class="bar-label">Unallocated</span><div class="bar-track"><div class="bar-fill red" style="width:12%"></div></div><span class="bar-val">5</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #dddbda;border-radius:6px;overflow:hidden;margin-bottom:12px">
+      <div style="display:flex;align-items:center;padding:8px 12px;border-bottom:1px solid #dddbda;background:#fef1ee;gap:8px">
+        <span style="font-size:12px;font-weight:600;color:#ba0517;flex:1">&#9888; Urgent cases requiring team leader attention</span>
+        <span style="font-size:11px;color:#0070d2">View all</span>
+      </div>
+      <table class="sf-list-table">
+        <thead><tr><th>CPO Ref</th><th>Applicant</th><th>Stage</th><th>Deadline</th><th>Issue</th><th>RAG</th><th>Officer</th><th></th></tr></thead>
+        <tbody>
+          <tr><td class="td-link">CPO-2026-0041</td><td>National Grid ESO</td><td>Validation</td><td style="color:#ba0517;font-weight:600">12 Apr 2026</td><td style="font-size:11px;color:#ba0517">Validation deadline tomorrow — 2 RFIs open</td><td><span class="rag red"></span></td><td>A. Hassan</td><td class="td-link">Open</td></tr>
+          <tr><td class="td-link">CPO-2025-0031</td><td>Electricity North West</td><td>Inquiry</td><td style="color:#ba6400;font-weight:600">28 Apr 2026</td><td style="font-size:11px;color:#ba6400">Proof of evidence due to PINS</td><td><span class="rag red"></span></td><td>M. Oyelaran</td><td class="td-link">Open</td></tr>
+          <tr><td class="td-link">CPO-2025-0024</td><td>UK Power Networks</td><td>Decision</td><td style="color:#ba6400;font-weight:600">30 Apr 2026</td><td style="font-size:11px;color:#ba6400">Decision letter awaiting legal sign-off</td><td><span class="rag amber"></span></td><td>S. Fekkak</td><td class="td-link">Open</td></tr>
+          <tr><td class="td-link">CPO-2026-0044</td><td>Vattenfall UK</td><td>Pre-App</td><td style="color:#ba0517">Unallocated</td><td style="font-size:11px;color:#ba0517">No case officer assigned</td><td><span class="rag red"></span></td><td style="color:#ba0517">—</td><td class="td-link">Assign</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="sf-related-list">
+        <div class="sf-rl-header"><span class="rl-title">Upcoming key dates (next 14 days)</span><span class="rl-btn">Full calendar</span></div>
+        <div class="sf-rl-row"><span class="rl-name" style="color:#ba0517;font-weight:600">12 Apr — CPO-2026-0041 Validation deadline</span></div>
+        <div class="sf-rl-row"><span class="rl-name">22 Apr — Wylfa pre-application meeting</span></div>
+        <div class="sf-rl-row"><span class="rl-name" style="color:#ba6400">28 Apr — CPO-2025-0031 Inquiry bundle to PINS</span></div>
+        <div class="sf-rl-row"><span class="rl-name" style="color:#ba6400">30 Apr — CPO-2025-0024 Decision target</span></div>
+      </div>
+      <div class="sf-related-list">
+        <div class="sf-rl-header"><span class="rl-title">Open RFIs — all cases</span><span class="rl-count">9</span></div>
+        <div class="sf-rl-row"><span class="rl-name">CPO-2026-0041 — RFI-002 Environmental Statement</span><span class="rl-meta"><span class="f-value tag-red" style="font-size:10px">15 Apr</span></span></div>
+        <div class="sf-rl-row"><span class="rl-name">CPO-2026-0038 — RFI-001 Planning docs</span><span class="rl-meta"><span class="f-value tag-amber" style="font-size:10px">22 Apr</span></span></div>
+        <div class="sf-rl-row"><span class="rl-name">CPO-2026-0036 — RFI-001 Order maps</span><span class="rl-meta"><span class="f-value tag-amber" style="font-size:10px">28 Apr</span></span></div>
+        <div class="sf-rl-row" style="padding:8px 10px"><span style="font-size:11px;color:#0070d2">View all 9 open RFIs &#8594;</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(idx, btn) {
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+  document.getElementById('s'+idx).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; color: #1b1b1b; background: #f3f2f2; padding: 16px; }
+h1 { font-size: 20px; font-weight: 600; color: #1b1b1b; margin-bottom: 4px; }
+.intro { font-size: 13px; color: #5a5a5a; margin-bottom: 16px; }
+
+.category-nav { display: flex; gap: 4px; margin-bottom: 10px; border-bottom: 2px solid #dddbda; padding-bottom: 4px; }
+.cat-btn { padding: 6px 14px; font-size: 13px; font-weight: 600; color: #5a5a5a; background: transparent; border: none; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -7px; }
+.cat-btn.active { color: #0070d2; border-bottom-color: #0070d2; }
+.screen-nav { display: none; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; background: #e8e6e4; padding: 10px; border-radius: 6px; }
+.screen-nav.active { display: flex; }
+.nav-btn { padding: 5px 12px; font-size: 11px; border-radius: 4px; border: 1px solid #c9c7c5; background: #fff; color: #1b1b1b; cursor: pointer; }
+.nav-btn:hover { background: #f3f2f2; }
+.nav-btn.active { background: #0070d2; border-color: #0070d2; color: #fff; font-weight: 500; }
+.sf-shell { background: #f3f2f2; border: 1px solid #dddbda; border-radius: 8px; overflow: hidden; display: none; }
+.sf-shell.active { display: block; }
+.sf-topbar { background: #0070d2; display: flex; align-items: center; gap: 10px; padding: 6px 12px; min-height: 36px; }
+.sf-topbar-app { color: #fff; font-size: 12px; font-weight: 500; }
+.sf-topbar-icons { margin-left: auto; display: flex; gap: 8px; }
+.sf-tabbar { background: #f3f2f2; border-bottom: 1px solid #dddbda; display: flex; align-items: center; padding: 0 8px; overflow-x: auto; }
+.sf-tabbar-tab { padding: 6px 14px; font-size: 11px; color: #5a5a5a; white-space: nowrap; border-bottom: 2px solid transparent; cursor: pointer; }
+.sf-tabbar-tab.active { color: #0070d2; border-bottom-color: #0070d2; font-weight: 500; }
+.sf-page-header { background: #fff; border-bottom: 1px solid #dddbda; padding: 10px 16px; display: flex; align-items: center; gap: 8px;}
+.sf-page-header h1 { font-size: 18px; font-weight: 500; margin:0; display:flex; align-items:center; gap:8px;}
+.sf-obj-icon { width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.blue { background: #0070d2; } .green { background: #2e844a; } .red { background: #ba0517; } .purple { background: #7f8de1; } .amber { background: #ba6400; } .gray { background: #5a5a5a; }
+.sf-highlights { background: #fff; border-bottom: 1px solid #dddbda; padding: 10px 16px; display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+.sf-highlight-field { display: flex; flex-direction: column; }
+.hf-label { font-size: 10px; color: #5a5a5a; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+.hf-value { font-size: 13px; font-weight: 500; color: #1b1b1b; }
+.link { color: #0070d2; cursor: pointer; text-decoration: underline; }
+.tag-green { color: #2e844a; background: #eaf5ea; padding: 2px 8px; border-radius: 10px; font-size: 11px; display: inline-block; }
+.tag-amber { color: #ba6400; background: #fff8ed; padding: 2px 8px; border-radius: 10px; font-size: 11px; display: inline-block; }
+.tag-red { color: #ba0517; background: #fef1ee; padding: 2px 8px; border-radius: 10px; font-size: 11px; display: inline-block; }
+.tag-blue { color: #0070d2; background: #e8f0fe; padding: 2px 8px; border-radius: 10px; font-size: 11px; display: inline-block; }
+.tag-gray { color: #5a5a5a; background: #f3f2f2; padding: 2px 8px; border-radius: 10px; font-size: 11px; display: inline-block; }
+.sf-layout { display: flex; align-items: flex-start; }
+.sf-main { flex: 1; min-width: 0; padding: 12px 16px; border-right: 1px solid #dddbda; }
+.sf-sidebar { width: 260px; flex-shrink: 0; padding: 12px; background: #f8f7f6; }
+.sf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; border: 1px solid #c9c7c5; background: #fff; color: #1b1b1b; font-family: inherit; }
+.sf-btn.primary { background: #0070d2; border-color: #0070d2; color: #fff; }
+.sf-btn.success { background: #2e844a; border-color: #2e844a; color: #fff; }
+.sf-btn-group { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.sf-btn-group.col { flex-direction: column; }
+.sf-field-group { background: #fff; border: 1px solid #dddbda; border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; }
+.sf-field-group-title { font-size: 11px; font-weight: 600; color: #5a5a5a; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #dddbda; text-transform: uppercase; }
+.sf-list-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.sf-list-table th { background: #f8f7f6; padding: 6px 8px; text-align: left; font-size: 10px; font-weight: 600; color: #5a5a5a; border-bottom: 1px solid #dddbda; }
+.sf-list-table td { padding: 7px 8px; border-bottom: 1px solid #f3f2f2; }
+.sf-list-table tr:hover td { background: #f9f9f9; cursor: pointer; }
+.sf-checkbox-row { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; font-size: 12px; border-bottom: 1px solid #f3f2f2; }
+.sf-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+.sf-kpi { background: #fff; border: 1px solid #dddbda; border-radius: 6px; padding: 10px; text-align: center; cursor: pointer; }
+.kpi-n { font-size: 24px; font-weight: 600; }
+.kpi-label { font-size: 10px; color: #5a5a5a; text-transform: uppercase; margin-top: 2px; }
+.sf-banner { padding: 8px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 10px; }
+.sf-banner.warn { background: #fff8ed; color: #ba6400; border: 1px solid #f0c070; }
+.sf-banner.success { background: #eaf5ea; color: #2e844a; border: 1px solid #9bcca4; }
+.sf-banner.error { background: #fef1ee; color: #ba0517; border: 1px solid #f5bcb0; }
+.screen-label { font-size: 11px; font-weight: 600; color: #5a5a5a; text-transform: uppercase; padding: 8px 16px; background: #e8e6e4; border-bottom: 1px solid #dddbda; }

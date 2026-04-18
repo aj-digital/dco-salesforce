@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DESNZ DCO Case Management — End-to-End Prototype</title>
+<link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+<h1>DESNZ DCO Case Management — End-to-End Prototype</h1>
+<p class="intro">
+  A cross-functional prototype connecting Environmental, Planning, Case Management, and Senior Leadership journeys.
+</p>
+
+<!-- Category Navigation -->
+<div class="category-nav">
+  <button class="cat-btn active" onclick="setCategory('shared')">Shared / Cross-Team (6)</button>
+  <button class="cat-btn" onclick="setCategory('env')">Environmental Team (6)</button>
+  <button class="cat-btn" onclick="setCategory('plan')">Case Planning Team (4)</button>
+  <button class="cat-btn" onclick="setCategory('lead')">Leadership / Senior (3)</button>
+  <div style="flex:1"></div>
+  <button class="sf-btn" onclick="resetState()">Reset App State</button>
+</div>
+
+<!-- Screen Navigations -->
+<div class="screen-nav active" id="nav_shared">
+  <button class="nav-btn" data-target="shared_port_dash">DCO Portfolio Dash</button>
+  <button class="nav-btn" data-target="shared_case_work">DCO Case Workspace</button>
+  <button class="nav-btn" data-target="shared_timeline">Case Timeline</button>
+  <button class="nav-btn" data-target="shared_tasks">Tasks & Actions</button>
+  <button class="nav-btn" data-target="shared_docs">Docs & Evidence</button>
+  <button class="nav-btn" data-target="shared_audit">Audit Trail</button>
+</div>
+
+<div class="screen-nav" id="nav_env">
+  <button class="nav-btn" data-target="env_dash">Env Portfolio Dash</button>
+  <button class="nav-btn" data-target="env_work">Env Review Workspace</button>
+  <button class="nav-btn" data-target="env_issue">Env Issue Detail</button>
+  <button class="nav-btn" data-target="env_cons">Consultation Tracker</button>
+  <button class="nav-btn" data-target="env_draft">Drafting & Contrib.</button>
+  <button class="nav-btn" data-target="env_ready">Env Readiness</button>
+</div>
+
+<div class="screen-nav" id="nav_plan">
+  <button class="nav-btn" data-target="plan_work">Planning Workspace</button>
+  <button class="nav-btn" data-target="plan_coord">Issue Coordination</button>
+  <button class="nav-btn" data-target="plan_pack">Submission Pack</button>
+  <button class="nav-btn" data-target="plan_ready">Clearance Readiness</button>
+</div>
+
+<div class="screen-nav" id="nav_lead">
+  <button class="nav-btn" data-target="lead_dash">Senior Oversight Dash</button>
+  <button class="nav-btn" data-target="lead_dec">Decision Issue / Pub</button>
+  <button class="nav-btn" data-target="lead_close">Closure / Archive</button>
+</div>
+
+<!-- =========================
+     SHARED SCREENS
+     ========================= -->
+<!-- 1. DCO Portfolio Dashboard -->
+<div class="sf-shell screen" id="shared_port_dash">
+  <div class="screen-label">Shared: DCO Portfolio Dashboard</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Master Portfolio</span></div>
+  <div class="sf-layout"><div class="sf-main">
+    <div class="sf-kpi-grid">
+      <div class="sf-kpi"><div class="kpi-n">42</div><div class="kpi-label">Active DCOs</div></div>
+      <div class="sf-kpi"><div class="kpi-n" style="color:#ba0517">5</div><div class="kpi-label">Red RAG Status</div></div>
+      <div class="sf-kpi"><div class="kpi-n" style="color:#ba6400">12</div><div class="kpi-label">Approaching Deadline</div></div>
+      <div class="sf-kpi"><div class="kpi-n" style="color:#2e844a">3</div><div class="kpi-label">Ready for Decision</div></div>
+    </div>
+    <div class="sf-field-group">
+      <div class="sf-field-group-title">Live Cases Overview</div>
+      <table class="sf-list-table">
+        <thead><tr><th>Case Ref</th><th>Project Name</th><th>Stage</th><th>Overall RAG</th></tr></thead>
+        <tbody>
+          <tr onclick="navigateTo('shared_case_work', 'shared')">
+            <td class="link">DCO-2026-012</td><td>South Humber Bank</td><td><span class="tag-blue">Case Review</span></td><td id="port_case1_rag"><span class="tag-red">Red</span></td>
+          </tr>
+          <tr>
+            <td class="link">DCO-2026-004</td><td>Scottish Offshore Grid</td><td><span class="tag-amber">Consultation</span></td><td><span class="tag-amber">Amber</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div></div>
+</div>
+
+<!-- 2. DCO Case Workspace -->
+<div class="sf-shell screen active" id="shared_case_work">
+  <div class="screen-label">Shared: DCO Case Workspace (Anchor Page)</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; DCO Case | DCO-2026-012</span></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon blue">C</div>DCO-2026-012: South Humber Bank</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Applicant</div><div class="hf-value">EP Waste Mgmt</div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Overall RAG</div><div class="hf-value" id="case_overall_rag"><span class="tag-red">Red</span></div></div>
+    <div class="sf-highlight-field"><div class="hf-label">Decision Deadline</div><div class="hf-value" style="color:#ba0517">14 May 2026</div></div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Cross-Team Workspaces</div>
+        <div style="display:flex; gap:10px;">
+          <button class="sf-btn" onclick="navigateTo('plan_work', 'plan')">Open Planning Workspace</button>
+          <button class="sf-btn" onclick="navigateTo('env_work', 'env')">Open Environmental Workspace</button>
+          <button class="sf-btn">Open Legal Workspace</button>
+        </div>
+      </div>
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Clearance Status Rollup</div>
+        <table class="sf-list-table">
+          <thead><tr><th>Discipline</th><th>Lead</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Planning & Case Mgmt</td><td>Sarah B.</td><td id="case_plan_status"><span class="tag-amber">In Progress</span></td></tr>
+            <tr><td>Environmental</td><td>Alex C.</td><td id="case_env_status"><span class="tag-red">Blocked</span></td></tr>
+            <tr><td>Legal</td><td>David R.</td><td><span class="tag-green">Cleared</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="sf-sidebar">
+      <div class="sf-actions-panel">
+        <div class="sf-btn-group col">
+          <button class="sf-btn" onclick="navigateTo('shared_timeline', 'shared')">View Timeline</button>
+          <button class="sf-btn" onclick="navigateTo('shared_tasks', 'shared')">View Tasks</button>
+          <button class="sf-btn" onclick="navigateTo('shared_docs', 'shared')">View Docs</button>
+          <button class="sf-btn primary" onclick="navigateTo('plan_ready', 'plan')">Master Clearance</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Case Timeline / Milestones Page -->
+<div class="sf-shell screen" id="shared_timeline">
+  <div class="screen-label">Shared: Case Timeline / Milestones</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Milestones | DCO-2026-012</span></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon gray">T</div>Timeline & Milestones</h1></div>
+  <div class="sf-layout"><div class="sf-main">
+    <div class="sf-field-group">
+      <ul style="list-style:none; padding:10px; border-left: 3px solid #dddbda; margin-left: 10px;">
+        <li style="margin-bottom:15px;"><span class="tag-green">Completed</span> <b>Application Accepted</b> (12 Jan 2026)</li>
+        <li style="margin-bottom:15px;"><span class="tag-green">Completed</span> <b>Examination Phase</b> (01 Mar 2026)</li>
+        <li style="margin-bottom:15px;"><span class="tag-blue">Active</span> <b>Recommendation & Drafting</b> (Target: 01 May 2026)</li>
+        <li style="margin-bottom:15px;"><span class="tag-gray">Pending</span> <b>Ministerial Decision</b> (Target: 14 May 2026)</li>
+      </ul>
+    </div>
+  </div></div>
+</div>
+
+<!-- 4. Tasks & Actions Page -->
+<div class="sf-shell screen" id="shared_tasks">
+  <div class="screen-label">Shared: Tasks and Actions</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Tasks | DCO-2026-012</span></div>
+  <div class="sf-layout"><div class="sf-main">
+    <div class="sf-field-group">
+      <div class="sf-field-group-title">Cross-Team Tasks</div>
+      <table class="sf-list-table">
+        <thead><tr><th>Task</th><th>Owner</th><th>Due Date</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Review HRA Mitigation Text</td><td>Alex C. (Env)</td><td>25 Apr 2026</td><td id="task_env"><span class="tag-red">Overdue</span></td></tr>
+          <tr><td>Draft Final Recommendation</td><td>Sarah B. (Plan)</td><td>01 May 2026</td><td><span class="tag-amber">In Progress</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div></div>
+</div>
+
+<!-- 5. Documents & Evidence Viewer -->
+<div class="sf-shell screen" id="shared_docs">
+  <div class="screen-label">Shared: Documents and Evidence Viewer</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Master Document Library</span></div>
+  <div class="sf-layout">
+    <div class="sf-sidebar" style="width:250px">
+      <div class="sf-field-group-title">Folders</div>
+      <div style="font-size:12px; margin-bottom:6px; cursor:pointer">📂 Application Docs</div>
+      <div style="font-size:12px; margin-bottom:6px; cursor:pointer; font-weight:bold; color:#0070d2">📂 Environmental Evidence</div>
+      <div style="font-size:12px; margin-bottom:6px; cursor:pointer">📂 Consultations</div>
+    </div>
+    <div class="sf-main">
+      <table class="sf-list-table">
+        <thead><tr><th>Document Name</th><th>Version</th><th>Uploaded Date</th></tr></thead>
+        <tbody>
+          <tr><td class="link">App-044 Habitats Reg. Assessment</td><td>v2.0</td><td>15 Mar 2026</td></tr>
+          <tr><td class="link">Natural England Representation</td><td>v1.0</td><td>10 Apr 2026</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Case Activity / Audit Trail -->
+<div class="sf-shell screen" id="shared_audit">
+  <div class="screen-label">Shared: Case Activity / Audit Trail</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Audit Trail</span></div>
+  <div class="sf-layout"><div class="sf-main">
+    <div class="sf-field-group">
+      <div style="font-size:12px; padding:8px; border-bottom:1px solid #ddd;"><b>Alex C.</b> created consultation item <i>CONS-001</i> (12 Apr 2026)</div>
+      <div style="font-size:12px; padding:8px; border-bottom:1px solid #ddd;"><b>Sarah B.</b> advanced stage to <i>Recommendation Review</i> (05 Apr 2026)</div>
+    </div>
+  </div></div>
+</div>
+
+
+<!-- =========================
+     ENVIRONMENTAL SCREENS
+     ========================= -->
+<!-- 12. Env Portfolio Dashboard -->
+<div class="sf-shell screen" id="env_dash">
+  <div class="screen-label">Environmental: Env Portfolio Dashboard</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Env Lead Dashboard</span></div>
+  <div class="sf-layout"><div class="sf-main">
+    <div class="sf-kpi-grid">
+      <div class="sf-kpi"><div class="kpi-n">8</div><div class="kpi-label">Env Reviews Active</div></div>
+      <div class="sf-kpi"><div class="kpi-n" style="color:#ba0517" id="env_dash_blocks">2</div><div class="kpi-label">Blocked Env Cases</div></div>
+    </div>
+    <div class="sf-field-group">
+      <table class="sf-list-table">
+        <thead><tr><th>Case Ref</th><th>Env Lead</th><th>Open Env Issues</th><th>Env Readiness</th></tr></thead>
+        <tbody>
+          <tr onclick="navigateTo('env_work', 'env')">
+            <td class="link">DCO-2026-012</td><td>Alex C.</td><td id="env_dash_iss_count">1</td><td id="env_dash_ready"><span class="tag-red">Blocked</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div></div>
+</div>
+
+<!-- 7. Env Review Workspace -->
+<div class="sf-shell screen" id="env_work">
+  <div class="screen-label">Environmental: Env Review Workspace</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Env Workspace | DCO-2026-012</span></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon green">ER</div>Enviromental Review</h1></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Readiness</div><div class="hf-value" id="ew_ready"><span class="tag-red">Not Ready</span></div></div>
+    <div style="margin-left:auto"><button class="sf-btn primary" onclick="navigateTo('env_ready', 'env')">Check Env Readiness &#8594;</button></div>
+  </div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Key Items</div>
+        <button class="sf-btn" onclick="navigateTo('env_issue', 'env')">View Issue: ENV-ISS-001 <span id="ew_iss_tag" class="tag-red" style="margin-left:5px">Open</span></button>
+        <button class="sf-btn" onclick="navigateTo('env_cons', 'env')">View Consultation: CONS-001 <span id="ew_cons_tag" class="tag-amber" style="margin-left:5px">Awaiting</span></button>
+        <button class="sf-btn" onclick="navigateTo('env_draft', 'env')">Drafting Input <span id="ew_draft_tag" class="tag-red" style="margin-left:5px">Pending</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. Env Issue Detail -->
+<div class="sf-shell screen" id="env_issue">
+  <div class="screen-label">Environmental: Issue Detail</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Issue | ENV-ISS-001</span></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon red">EI</div>ENV-ISS-001: HRA Mitigation</h1></div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Issue Status</div>
+        <div style="margin-bottom:10px" id="ei_status"><span class="tag-red">Open (Blocking)</span></div>
+        <button class="sf-btn success" onclick="toggleEnvIssue()" id="ei_btn">Mark as Resolved</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 9. Consultation Tracker -->
+<div class="sf-shell screen" id="env_cons">
+  <div class="screen-label">Environmental: Consultation Tracker</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Consultation | CONS-001</span></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon amber">C</div>CONS-001: Natural England</h1></div>
+  <div class="sf-layout">
+    <div class="sf-main">
+      <div class="sf-field-group">
+        <div class="sf-field-group-title">Consultation Status</div>
+        <div style="margin-bottom:10px" id="ec_status"><span class="tag-amber">Awaiting Response</span></div>
+        <button class="sf-btn primary" onclick="updateEnvCons()" id="ec_btn">Record Response Received</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 10. Env Drafting & Contrib -->
+<div class="sf-shell screen" id="env_draft">
+  <div class="screen-label">Environmental: Drafting & Contributions</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Drafting Input</span></div>
+  <div class="sf-layout"><div class="sf-main">
+    <div class="sf-field-group">
+      <div class="sf-field-group-title">Environmental Chapter Input</div>
+      <textarea style="width:100%; min-height:100px; padding:10px; margin-bottom:10px;" placeholder="Add text..."></textarea>
+      <button class="sf-btn primary" onclick="submitEnvDraft()" id="ed_btn">Submit Drafting</button>
+      <div id="ed_status" style="margin-top:10px"><span class="tag-red">Not Submitted</span></div>
+    </div>
+  </div></div>
+</div>
+
+<!-- 11. Env Readiness Page -->
+<div class="sf-shell screen" id="env_ready">
+  <div class="screen-label">Environmental: Environmental Readiness Page</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Env Clearance Readiness</span></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Ready for Planning Clearance?</div><div class="hf-value" id="er_status"><span class="tag-red">Blocked</span></div></div>
+    <div style="margin-left:auto"><button class="sf-btn success" id="er_btn" disabled onclick="clearEnv()">Sign-off Env Clearance</button></div>
+  </div>
+  <div class="sf-layout"><div class="sf-main">
+    <div class="sf-field-group">
+      <div class="sf-field-group-title">Checklist</div>
+      <div style="padding:5px 0" id="er_chk_iss">❌ Issue ENV-ISS-001 Resolved</div>
+      <div style="padding:5px 0" id="er_chk_cons">❌ Consultation CONS-001 Reviewed</div>
+      <div style="padding:5px 0" id="er_chk_draft">❌ Drafting Submitted</div>
+    </div>
+  </div></div>
+</div>
+
+
+<!-- =========================
+     PLANNING SCREENS
+     ========================= -->
+<!-- 13. Planning Workspace -->
+<div class="sf-shell screen" id="plan_work">
+  <div class="screen-label">Planning: Case Management Workspace</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Plan Workspace | DCO-2026-012</span></div>
+  <div class="sf-page-header"><h1><div class="sf-obj-icon purple">P</div>Planning Workspace</h1></div>
+  <div class="sf-layout"><div class="sf-main">
+    <div class="sf-field-group">
+      <div class="sf-field-group-title">Sub-Teams Status</div>
+      <table class="sf-list-table">
+        <tbody>
+          <tr><td>Environmental Team</td><td id="pw_env_stat"><span class="tag-red">Incomplete</span></td></tr>
+          <tr><td>Legal Team</td><td><span class="tag-green">Complete</span></td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px">
+        <button class="sf-btn" onclick="navigateTo('plan_coord', 'plan')">Issue Coordination</button>
+        <button class="sf-btn" onclick="navigateTo('plan_pack', 'plan')">Submission Pack</button>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- 14. Issue Coordination Page -->
+<div class="sf-shell screen" id="plan_coord">
+  <div class="screen-label">Planning: Issue Coordination Page</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Issue Coordination</span></div>
+  <div class="sf-layout"><div class="sf-main">
+    <div class="sf-field-group">
+      <div class="sf-field-group-title">Cross-Functional Issues</div>
+      <table class="sf-list-table">
+        <thead><tr><th>Issue</th><th>Domain</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>ENV-ISS-001</td><td>Environmental</td><td id="pc_iss_stat"><span class="tag-red">Open</span></td></tr>
+          <tr><td>LEG-ISS-042</td><td>Legal</td><td><span class="tag-green">Resolved</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div></div>
+</div>
+
+<!-- 15. Submission Pack / Draft Coord -->
+<div class="sf-shell screen" id="plan_pack">
+  <div class="screen-label">Planning: Submission Pack / Draft Coordination</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Draft Coordination</span></div>
+  <div class="sf-layout"><div class="sf-main">
+    <div class="sf-field-group">
+      <div class="sf-field-group-title">Recommendation Report Inputs</div>
+      <table class="sf-list-table">
+        <thead><tr><th>Section</th><th>Owner</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Legal Intro</td><td>Legal</td><td><span class="tag-green">Submitted</span></td></tr>
+          <tr><td>Environmental Assessment</td><td>Env Team</td><td id="pp_draft_stat"><span class="tag-red">Pending</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div></div>
+</div>
+
+<!-- 16. Clearance & Decision Readiness -->
+<div class="sf-shell screen" id="plan_ready">
+  <div class="screen-label">Planning: Master Clearance Readiness</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Master Clearance</span></div>
+  <div class="sf-highlights">
+    <div class="sf-highlight-field"><div class="hf-label">Overall Readiness</div><div class="hf-value" id="pr_status"><span class="tag-red">Not Ready</span></div></div>
+    <div style="margin-left:auto"><button class="sf-btn success" id="pr_btn" disabled onclick="clearMaster()">Submit to Minister</button></div>
+  </div>
+  <div class="sf-layout"><div class="sf-main">
+    <div class="sf-field-group">
+      <div class="sf-field-group-title">Team Clearances</div>
+      <div style="padding:5px 0" id="pr_chk_env">❌ Environmental Clearance Signed-off</div>
+      <div style="padding:5px 0">✅ Legal Clearance Signed-off</div>
+    </div>
+  </div></div>
+</div>
+
+
+<!-- =========================
+     LEADERSHIP SCREENS
+     ========================= -->
+<!-- 17. Senior Oversight Dashboard -->
+<div class="sf-shell screen" id="lead_dash">
+  <div class="screen-label">Leadership: Senior Oversight Dashboard</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Senior Dashboard</span></div>
+  <div class="sf-layout"><div class="sf-main">
+    <div class="sf-field-group">
+      <div class="sf-field-group-title">Urgent Ministerial Submissions</div>
+      <table class="sf-list-table">
+        <thead><tr><th>Case</th><th>Target Date</th><th>Master Clearance Status</th></tr></thead>
+        <tbody>
+          <tr onclick="navigateTo('shared_case_work', 'shared')"><td>DCO-2026-012</td><td>14 May 2026</td><td id="ld_case1_stat"><span class="tag-red">Blocked</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div></div>
+</div>
+
+<!-- 18. Decision Issue / Publication -->
+<div class="sf-shell screen" id="lead_dec">
+  <div class="screen-label">Leadership: Decision Issue / Publication</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Publication</span></div>
+  <div class="sf-layout"><div class="sf-main">
+    <div class="sf-field-group">
+      <div class="sf-field-group-title">Publication Workflow</div>
+      <button class="sf-btn" id="l_dec_btn" disabled>Publish Decision Letter</button>
+      <div style="margin-top:10px" id="l_dec_msg">Requires Master Clearance submission first.</div>
+    </div>
+  </div></div>
+</div>
+
+<!-- 19. Closure / Archive Page -->
+<div class="sf-shell screen" id="lead_close">
+  <div class="screen-label">Leadership: Case Closure & Archive</div>
+  <div class="sf-topbar"><span class="sf-topbar-app">&#9783; Case Archive</span></div>
+  <div class="sf-layout"><div class="sf-main">
+    <div class="sf-field-group">
+      <div class="sf-field-group-title">Archive Checklist</div>
+      <div style="padding:5px 0">❌ Decision Published</div>
+      <div style="padding:5px 0">❌ All Records Exported</div>
+      <button class="sf-btn" disabled style="margin-top:10px">Close Case</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- Application Logic -->
+<script src="/js/store.js"></script>
+
+</body>
+</html>
