@@ -1,1 +1,12 @@
-{ "name": "dco-salesforce", "version": "1.0.0", "private": true }
+{
+  "name": "dco-salesforce-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node prototype/server.js",
+    "install": "cd prototype && npm install"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
