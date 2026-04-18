@@ -2,8 +2,8 @@
 let state = {
   // Env Officer State
   evidenceReviewed: false, consAdequacy: 'Pending', issueStatus: 'In Review', draftDone: false, envCleared: false, masterCleared: false,
-  // Env Lead State 
-  leadFlagged: false, leadReviewed: false, leadNote: '', leadEndorsed: false,
+  // Env Lead / Executive Oversight State 
+  leadFlagged: false, leadReviewed: false, leadNote: '', leadEndorsed: false, portFilter: 'All',
   // Env Support Coordinator State
   taskConsAdminComplete: false, taskDocAdminComplete: false, consDueDate: '2026-05-18', consExtended: false,
   // Planning Case Manager State
@@ -33,7 +33,7 @@ function resetState() {
   localStorage.removeItem('dco_cross_journey');
   state = {
       evidenceReviewed: false, consAdequacy: 'Pending', issueStatus: 'In Review', draftDone: false, envCleared: false, masterCleared: false,
-      leadFlagged: false, leadReviewed: false, leadNote: '', leadEndorsed: false,
+      leadFlagged: false, leadReviewed: false, leadNote: '', leadEndorsed: false, portFilter: 'All',
       taskConsAdminComplete: false, taskDocAdminComplete: false, consDueDate: '2026-05-18', consExtended: false,
       planDraftAck: false, planPackRev: false, planOnTrack: false,
       legalDocReviewed: false, legalPackRev: false, legalOnTrack: false, legalCleared: false,
@@ -80,6 +80,11 @@ function actionEnvClearance() { state.envCleared = true; saveState(); navigateTo
 function actionConsAdmin() { state.taskConsAdminComplete = true; saveState(); }
 function actionDocAdmin() { state.taskDocAdminComplete = true; saveState(); }
 
+// Actions -- Leadership / Oversight
+function actionFilt(filtStr) { state.portFilter = filtStr; saveState(); }
+function actionLeadFlag() { state.leadFlagged = true; state.leadReviewed = false; saveState(); }
+function actionLeadReview() { state.leadReviewed = true; state.leadFlagged = false; saveState(); }
+
 // Actions -- Planning
 function actionPlanDraftAck() { state.planDraftAck = true; saveState(); }
 function actionPlanPackRev() { state.planPackRev = true; saveState(); }
@@ -103,6 +108,7 @@ function actionClosureDoc() { state.closureDocChecked = true; saveState(); }
 function actionArchPrep() { state.closureArchived = true; saveState(); }
 function actionCaseClose() { state.caseClosed = true; saveState(); navigateTo('shared_case_work', 'shared'); alert("Success! The Case is permanently closed and archived."); }
 
+
 // UI Sync
 function updateUI() {
   let issueReady = (state.issueStatus === 'Resolved');
@@ -115,6 +121,59 @@ function updateUI() {
   let finalPubReady = (state.masterCleared && state.coordPackReviewed && state.coordIssuePrep);
 
   let archiveReady = (state.closurePubChecked && state.closureDocChecked && state.closureArchived);
+
+  // === Leadership Workspace / Filters ===
+  let ldTable = document.getElementById('lead_dash_table');
+  if(ldTable) {
+     let fBtns = ['btn_filt_all', 'btn_filt_risk', 'btn_filt_dead'];
+     fBtns.forEach(id => { let b = document.getElementById(id); if(b) b.style.outline = 'none'; });
+     
+     let actBtn;
+     if(state.portFilter === 'All') actBtn = document.getElementById('btn_filt_all');
+     else if(state.portFilter === 'Risk') actBtn = document.getElementById('btn_filt_risk');
+     else if(state.portFilter === 'Deadline') actBtn = document.getElementById('btn_filt_dead');
+     if(actBtn) actBtn.style.outline = '2px solid #000';
+
+     let tblHTML = '';
+     
+     // Evaluate logical risk state of Master DCO-2026-012
+     let isR1 = state.leadFlagged || (!masterReady && !state.caseClosed);
+     let isD1 = !state.caseClosed; // Near deadline boolean
+     let l1Act = state.leadReviewed ? '<span class="tag-green">Director Mitigated</span>' : (state.leadFlagged ? '<span class="tag-red">Awaiting Escalation Resolution</span>' : '<span class="tag-amber">Pending Check</span>');
+
+     let c2Vis = (state.portFilter === 'All' || state.portFilter === 'Risk' || state.portFilter === 'Deadline');
+     let c1Vis = (state.portFilter === 'All') || (state.portFilter === 'Risk' && isR1) || (state.portFilter === 'Deadline' && isD1);
+
+     if(c1Vis) {
+        let warnLevelStr = isR1 ? '<span class="tag-amber">Core Module Dependencies Missing</span>' : '<span class="tag-green">On Track / Cleared</span>';
+        if(state.leadFlagged) warnLevelStr = '<span class="tag-red">Director Override: Critical Path Disrupted</span>';
+        tblHTML += `<tr onclick="navigateTo('shared_case_work', 'shared')" style="cursor:pointer">
+                     <td class="link">DCO-2026-012</td><td>South Humber Bank</td><td>${warnLevelStr}</td><td>${l1Act}</td>
+                    </tr>`;
+     }
+     
+     if(c2Vis) {
+        tblHTML += `<tr><td class="link">DCO-2025-081</td><td>Thames Estuary Wind</td><td><span class="tag-red">Statutory Deadline Missed (Legal Hold)</span></td><td><span class="tag-red">Ministerial Inquiry Ongoing</span></td></tr>`;
+     }
+     
+     ldTable.innerHTML = tblHTML;
+
+     let w = document.getElementById('ld_warn');
+     if(w) { w.style.display = (state.portFilter === 'Risk' || state.leadFlagged) ? 'block' : 'none'; }
+  }
+
+  // === DCO Case Work (Executive Overlay Panel) ===
+  let lpanelStatus = document.getElementById('lbl_lead_status');
+  if(lpanelStatus) {
+     if(state.leadFlagged) {
+        lpanelStatus.className = 'tag-red'; lpanelStatus.innerHTML = 'FLAGGED FOR URGENT ATTENTION';
+     } else if (state.leadReviewed) {
+        lpanelStatus.className = 'tag-green'; lpanelStatus.innerHTML = '✅ Director Assessment Concluded';
+     } else {
+        lpanelStatus.className = 'tag-gray'; lpanelStatus.innerHTML = 'No overriding executive notes appended';
+     }
+  }
+
 
   // === Closure & Archive Workspace ===
   let clsCaseState = document.getElementById('cls_case_state');
@@ -132,67 +191,6 @@ function updateUI() {
       clsBan.className = 'sf-banner warn'; clsBan.innerHTML = 'Final records processing required before case can be formally closed and archived.';
       document.getElementById('btn_case_close').disabled = true;
     }
-
-    document.getElementById('cls_chk_pub').innerHTML = state.closurePubChecked ? '✅ Final Decision Published & Assessed' : '❌ Final Decision Published & Assessed';
-    document.getElementById('cls_chk_doc').innerHTML = state.closureDocChecked ? '✅ Final Records Metadata Verified' : '❌ Final Records Metadata Verified';
-    document.getElementById('cls_chk_arch').innerHTML = state.closureArchived ? '✅ Physical / Digital Archive Configured' : '❌ Physical / Digital Archive Configured';
-    
-    let btnArch = document.getElementById('btn_arch_prep');
-    if(state.closureArchived) { btnArch.style.display = 'none'; } else { btnArch.style.display = 'inline-block'; }
-  }
-
-  // === Documents Vault Admin Checks ===
-  let btnClsDoc = document.getElementById('btn_cls_doc');
-  if(btnClsDoc) {
-    let lblClsDoc = document.getElementById('lbl_cls_doc');
-    if(state.closureDocChecked) {
-       btnClsDoc.style.display = 'none'; lblClsDoc.className = 'tag-green'; lblClsDoc.innerHTML = '&#10003; Records Locked';
-    } else {
-       btnClsDoc.style.display = 'inline-block'; lblClsDoc.className = 'tag-red'; lblClsDoc.innerHTML = 'Records Unverified';
-    }
-  }
-
-  // === Decision Issue / Publication Hub ===
-  let decChkPack = document.getElementById('dec_chk_pack');
-  if(decChkPack) {
-    decChkPack.innerHTML = state.coordPackReviewed ? '✅ Submission Pack & Clearances Finalized internally' : '❌ Submission Pack & Clearances Finalized internally';
-    document.getElementById('dec_chk_prep').innerHTML = state.coordIssuePrep ? '✅ Issue / Notification Materials Verified' : '❌ Issue / Notification Materials Verified';
-    
-    let btnPubReady = document.getElementById('btn_pub_ready');
-    if(state.coordPubReady) {
-       document.getElementById('dec_summ').innerHTML = '<span class="tag-green">Publication Assets Complete ✓</span>';
-       if(btnPubReady) { btnPubReady.innerText = 'Publication Ready ✓'; btnPubReady.disabled = true; }
-    } else {
-       if(finalPubReady) {
-         document.getElementById('dec_summ').innerHTML = '<span class="tag-green">Ready to Publish</span>';
-         if(btnPubReady) { btnPubReady.disabled = false; }
-       } else {
-         document.getElementById('dec_summ').innerHTML = '<span class="tag-amber">Preparing Assets</span>';
-         if(btnPubReady) { btnPubReady.disabled = true; }
-       }
-    }
-
-    let btnClsPub = document.getElementById('btn_cls_pub');
-    let lblClsPub = document.getElementById('lbl_cls_pub');
-    if(btnClsPub) {
-      if(state.closurePubChecked) {
-        btnClsPub.style.display = 'none'; lblClsPub.className = 'tag-green'; lblClsPub.innerHTML = '&#10003; Tracked for Record';
-      } else {
-        btnClsPub.style.display = 'inline-block'; lblClsPub.className = 'tag-red'; lblClsPub.innerHTML = 'Awaiting Admin Verification';
-      }
-    }
-  }
-
-  // === Master Clearance Room ===
-  let prSumm = document.getElementById('pr_summ');
-  if(prSumm) {
-     if(state.masterCleared) {
-         prSumm.innerHTML = '<span class="tag-green">Master Case Cleared</span>';
-         document.getElementById('btn_master_clear').style.display = 'none';
-     } else {
-         if(masterReady) { prSumm.innerHTML = '<span class="tag-green">Ready To Publish</span>'; document.getElementById('btn_master_clear').disabled = false; } 
-         else { prSumm.innerHTML = '<span class="tag-amber">Trending</span>'; document.getElementById('btn_master_clear').disabled = true; }
-     }
   }
 
   // === Master / Shared Case Work Updates ===
@@ -216,22 +214,22 @@ function updateUI() {
           document.getElementById('case_cls_status').innerHTML = archiveReady ? '<span class="tag-green">Ready</span>' : '<span class="tag-amber">Processing</span>';
           document.getElementById('case_pub_ready').innerHTML = '<span class="tag-green">Ready</span>';
           document.getElementById('case_pub_status').innerHTML = '<span class="tag-green">Ready ✓</span>';
-          document.getElementById('case_overall_rag').innerHTML = '<span class="tag-green">Green</span>';
+          document.getElementById('case_overall_rag').innerHTML = state.leadFlagged ? '<span class="tag-red">Escalated</span>' : '<span class="tag-green">Green</span>';
           
           document.getElementById('path_rec').className = 'sf-path-node done';
           document.getElementById('path_dec').className = 'sf-path-node done';
           document.getElementById('path_cls').className = 'sf-path-node active';
       } else if(state.masterCleared) {
           cwBan.className = 'sf-banner success'; cwBan.innerHTML = '&#10003; Case logic complete. Master Decision Published. Awaiting Coordinator physical issuance.';
-          document.getElementById('case_overall_rag').innerHTML = '<span class="tag-green">Green</span>';
+          document.getElementById('case_overall_rag').innerHTML = state.leadFlagged ? '<span class="tag-red">Escalated</span>' : '<span class="tag-green">Green</span>';
           document.getElementById('path_rec').className = 'sf-path-node done';
           document.getElementById('path_dec').className = 'sf-path-node active';
       } else if(masterReady) {
           cwBan.className = 'sf-banner info'; cwBan.innerHTML = 'Ready for Master Clearance.';
-          document.getElementById('case_overall_rag').innerHTML = '<span class="tag-green">Green</span>';
+          document.getElementById('case_overall_rag').innerHTML = state.leadFlagged ? '<span class="tag-red">Escalated</span>' : '<span class="tag-green">Green</span>';
       } else {
           cwBan.className = 'sf-banner warn'; cwBan.innerHTML = '&#9888; Master Clearance requires final cross-departmental sign-offs.';
-          document.getElementById('case_overall_rag').innerHTML = '<span class="tag-amber">Amber</span>';
+          document.getElementById('case_overall_rag').innerHTML = state.leadFlagged ? '<span class="tag-red">Escalated (Amber Base)</span>' : '<span class="tag-amber">Amber</span>';
       }
   }
 

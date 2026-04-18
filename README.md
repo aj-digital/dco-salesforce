@@ -16,7 +16,7 @@ This prototype wires the base Salesforce wireframes into a connected, stateful f
 
 **Location:** Inside the `/prototype` folder (Node.js/Express app).
 
-This updated prototype implements heavily-interlinked **DCO Cross-Functional Journeys** mapping a massive seven-persona network that collectively forms the overarching case pipeline:
+This updated prototype implements heavily-interlinked **DCO Cross-Functional Journeys** mapping a massive eight-persona network that collectively forms the overarching case pipeline:
 
 1. **Case Manager:** Reviewing evidence, making consultation adequacy judgments, resolving issues, and contributing text drafting.
 2. **Team Leader:** Surfacing aggregated risk at the Portfolio Dashboard level, drilling down contextually, attaching string-based leadership notes, and flagging/endorsing issues natively.
@@ -25,6 +25,7 @@ This updated prototype implements heavily-interlinked **DCO Cross-Functional Jou
 5. **Legal Reviewer:** Evaluating Draft Orders (Statutory Instruments), acknowledging Submission Packs from a compliance perspective, and granting discrete Legal Certification required for final Master Clearance.
 6. **Decision Support Coordinator:** The checkpoint officer who evaluates physical pack compilation structure and oversees the distribution logic of the final Case outputs.
 7. **Admin / Archive Support:** The definitive terminus node. This user sweeps the application verifying Metadata storage, auditing the Publication transmission paths, and permanently locking the Case into read-only History status.
+8. **Portfolio Oversight / Executive:** The high-level monitor traversing horizontally across everything above. This user utilizes filters and MI dashboards to flag systemic bottlenecks, attaching Director-level Executive overrides that cascade down into the operational silos beneath them.
 
 ### How to Run:
 ```bash
@@ -34,24 +35,17 @@ npm start
 ```
 Then navigate to `http://localhost:3000` in your browser.
 
-### How to Demo the Flow (Archive & Closure UX - Happy Path):
-**Initial state:** Environmental team is cleared, Planning is validated, Legal is endorsed. The executives have granted sign-off. The final outputs have been physically 'Published'. 
+### How to Demo the Flow (Portfolio Oversight UX - Happy Path):
+**Initial state:** Active cases are populating. The DCO-2026-012 case is structurally underway.
 
-*(Developer Note: First simulate the prior teams' checks by clicking the quick mock buttons nested in the unlisted shells at the bottom of the HTML, or simply execute the other user pathways sequentially to trace the entirety of the project lifecycle!)*
-
-1. Start at the **Shared / Cross-Team -> DCO Case Workspace**. Observe the dynamic "Path Bar" nodes transitioning to active Closure mode. 
-2. Click through to the **Closure & Archive Tracker** view (either locally on the table row or via the main navigation sidebar).
-3. The Admin/Archive view aggregates checks across wildly distinct parts of the logic tree. Let's trace them down manually:
-   - Click `"Review Notification Pubs"`, bridging you directly to the `Decision Issue Hub`. Scroll down to `"Records Admin Handover Tracker"` and click **"Acknowledge Publication Output Recorded"**. 
-   - Click back via Breadcrumbs to the `Archive Tracker`. The first tier now says `✅ Final Decision Published & Assessed`.
-   - Now click `"Check Records Vault"`. Inside the Docs Viewer, skip down to doc three `[PUB-001]` and verify the Metadata in the purple admin box. Click **"Confirm Record Set Locked"**.
-4. Returning back to the main `Closure Tracker`, the second tier verifies.
-5. Finally, click **"Confirm Archive Established"** denoting the external long-term servers or internal physical files have accepted the final migration hand-off.
-6. A massive **"Close Case File ✓"** button unlocks.
-7. Click it! The user is returned to the `DCO Case Workspace`.
-8. The entire Master layout permanently shifts from vibrant Active hues to a uniform **Gray (Closed/Archived)** state. All active nodes snap to Read-Only metadata formats. 
-
-### What State Changes are Supported (Closure additions):
-- **Deep Status Coupling:** Ensures that a case cannot be trivially deleted or moved linearly "Closed" simply because decision publication finished. Physical and digital record archiving nodes act as strict compliance checkpoints terminating the case state-machine cleanly without backend mutation edge-cases leaking.
+1. Start at the **Shared / Cross-Team -> Portfolio Dash** (or the new **Leadership -> Master Portfolio** route). Check out the aggregate KPIs displaying `38 Active Cases`. Click **"Deep Dive: Senior Oversight ->"**.
+2. From the `Senior Oversight Dashboard`, the executive interacts with the `Portfolio Risk Filters`. 
+   - Click `🔴 High Risk / Blocked`. Our active test case `DCO-2026-012` natively appears here mathematically because the 'Master Clearance' module has not yet successfully resolved. 
+3. Click into `DCO-2026-012` from the filter table. 
+4. Inside the main `DCO Case Workspace`, a new orange `Executive Oversight & Intervention Logs` panel dominates the top of the interface. 
+   - Click **"Red Flag Case"**. 
+   - Observe the `Overall State` field instantly snap to a hostile Red override, denoting that Executive presence actively supersedes localized algorithmic metrics (such as Env/Legal individual status tags which might be Green).
+5. Click the top-right local Return button to drop back to the `Senior Dashboard`. Note that your case table re-evaluates the mathematical flag logic, confirming that `DCO-2026-012` is locked into the 'escalated' bucket.
+6. Finally, click `"Deep Dive: Reporting & MI ->"`. Here, the Executive breaks away from individualized application tracing, reviewing the overall pipeline structure (`12.4 mo Average App Cycle Time`, `Sub Pack Completion Rates`, and constraints pointing to an overloaded Habitats processing team). 
 
 *(If you ever get stuck, just press the red **Reset Journey State** button at the top!)*
