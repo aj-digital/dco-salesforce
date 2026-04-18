@@ -1,26 +1,30 @@
-// Mock State DCO Env Manager, Lead & Support Coordinator Journey
+// Mock State DCO Cross-Functional Journey
 let state = {
-  // Officer State
+  // Env Officer State
   evidenceReviewed: false,
-  consAdequacy: 'Pending', // 'Pending', 'Sufficient'
-  issueStatus: 'In Review',// 'Open', 'In Review', 'Resolved'
+  consAdequacy: 'Pending', 
+  issueStatus: 'In Review',
   draftDone: false,
   envCleared: false,
   masterCleared: false,
-  // Lead State overrides
+  // Env Lead State 
   leadFlagged: false,
   leadReviewed: false,
   leadNote: '',
   leadEndorsed: false,
-  // Support Coordinator State
+  // Env Support Coordinator State
   taskConsAdminComplete: false,
   taskDocAdminComplete: false,
   consDueDate: '2026-05-18',
-  consExtended: false
+  consExtended: false,
+  // Planning Case Manager State
+  planDraftAck: false,
+  planPackRev: false,
+  planOnTrack: false
 };
 
 function initState() {
-  let saved = localStorage.getItem('dco_env_journey_coord');
+  let saved = localStorage.getItem('dco_cross_journey');
   if(saved) {
       try { state = JSON.parse(saved); } catch(e){}
   }
@@ -28,12 +32,12 @@ function initState() {
 }
 
 function saveState() {
-  localStorage.setItem('dco_env_journey_coord', JSON.stringify(state));
+  localStorage.setItem('dco_cross_journey', JSON.stringify(state));
   updateUI();
 }
 
 function resetState() {
-  localStorage.removeItem('dco_env_journey_coord');
+  localStorage.removeItem('dco_cross_journey');
   state = {
       evidenceReviewed: false,
       consAdequacy: 'Pending',
@@ -48,7 +52,10 @@ function resetState() {
       taskConsAdminComplete: false,
       taskDocAdminComplete: false,
       consDueDate: '2026-05-18',
-      consExtended: false
+      consExtended: false,
+      planDraftAck: false,
+      planPackRev: false,
+      planOnTrack: false
   };
   saveState();
   navigateTo('shared_case_work', 'shared');
@@ -81,7 +88,7 @@ function navigateTo(screenId, forceCat) {
   window.scrollTo(0,0);
 }
 
-// Actions -- Officer
+// Actions -- Env Officer
 function actionEvidence() { state.evidenceReviewed = true; saveState(); }
 function actionAdequacy(val) { state.consAdequacy = val; saveState(); }
 function actionIssue(val) {
@@ -104,11 +111,11 @@ function actionEnvClearance() {
   alert("Environmental Clearance signed off! Overall Case Unblocked.");
 }
 
-// Actions -- Lead
+// Actions -- Env Lead
 function actionLeadFlag() { state.leadFlagged = true; state.leadReviewed = false; saveState(); }
 function actionLeadReview() { state.leadReviewed = true; state.leadFlagged = false; saveState(); }
 
-// Actions -- Coordinator
+// Actions -- Env Coordinator
 function actionConsUpdate() {
   let dVal = document.getElementById('cons_due_in').value;
   if(dVal) state.consDueDate = dVal;
@@ -118,12 +125,22 @@ function actionConsUpdate() {
 function actionConsAdmin() { state.taskConsAdminComplete = true; saveState(); }
 function actionDocAdmin() { state.taskDocAdminComplete = true; saveState(); }
 
+// Actions -- Planning Case Manager
+function actionPlanDraftAck() { state.planDraftAck = true; saveState(); }
+function actionPlanPackRev() { state.planPackRev = true; saveState(); }
+function actionPlanTrack() { state.planOnTrack = true; saveState(); }
+function actionMasterClear() { state.masterCleared = true; saveState(); navigateTo('shared_case_work', 'shared'); alert("Master Case Cleared for Decision Timeline!"); }
+
 // UI Sync
 function updateUI() {
   let issueReady = (state.issueStatus === 'Resolved');
   let consReady = (state.consAdequacy === 'Sufficient');
   let adminReady = (state.taskConsAdminComplete && state.taskDocAdminComplete);
   let envReady = (state.evidenceReviewed && consReady && issueReady && state.draftDone && adminReady);
+  
+  let packReady = state.planPackRev;
+  let trackReady = state.planOnTrack;
+  let masterReady = (state.envCleared && packReady && consReady); // Simplified rules
 
   let adminTaskCount = (state.taskConsAdminComplete ? 0 : 1) + (state.taskDocAdminComplete ? 0 : 1);
 
@@ -175,57 +192,6 @@ function updateUI() {
       }
   }
 
-  // Env Issue Detail
-  let eiStat = document.getElementById('ei_status');
-  if(eiStat) {
-      if(state.issueStatus === 'Resolved') eiStat.innerHTML = '<span class="tag-green">Resolved</span>';
-      else if(state.issueStatus === 'In Review') eiStat.innerHTML = '<span class="tag-amber">In Review</span>';
-      else eiStat.innerHTML = '<span class="tag-red">Open</span>';
-
-      document.getElementById('ei_ev_stat').className = state.evidenceReviewed ? 'tag-green' : 'tag-red';
-      document.getElementById('ei_ev_stat').innerHTML = state.evidenceReviewed ? '&#10003; Reviewed' : 'Unreviewed';
-      
-      let consAdq = document.getElementById('ei_cons_adequacy');
-      if(state.consAdequacy === 'Sufficient') { consAdq.className='tag-green'; consAdq.innerHTML='Sufficient'; }
-      else { consAdq.className='tag-amber'; consAdq.innerHTML='Adequacy Pending'; }
-
-      let btnRes = document.getElementById('btn_ei_res');
-      let eiBan = document.getElementById('ei_banner');
-      if(state.issueStatus === 'Resolved') {
-          btnRes.disabled = true; eiBan.className = 'sf-banner success'; eiBan.innerHTML = '&#10003; Issue Resolved and mitigation confirmed.';
-      } else {
-          if(state.evidenceReviewed && state.consAdequacy === 'Sufficient' && adminReady) {
-              btnRes.disabled = false; eiBan.className = 'sf-banner info'; eiBan.innerHTML = 'Prior requirements met. This issue is ready to be resolved.';
-          } else {
-              btnRes.disabled = true; eiBan.className = 'sf-banner warn'; eiBan.innerHTML = 'This issue requires admin checks, consultation adequacy, and evidence review before it can be resolved.';
-          }
-      }
-  }
-
-  // Env Review Workspace
-  let ewStat = document.getElementById('ew_iss_stat');
-  if(ewStat) {
-      if(state.issueStatus === 'Resolved') ewStat.innerHTML = '<span class="tag-green">Resolved</span>';
-      else ewStat.innerHTML = '<span class="tag-amber">In Review</span>';
-
-      document.getElementById('ew_admin_ready').innerHTML = adminReady ? '<span class="tag-green">Current & Verified</span>' : `<span class="tag-red">${adminTaskCount} Incomplete Tasks</span>`;
-      document.getElementById('ew_blocking_n').innerHTML = issueReady ? '<span class="tag-green">0</span>' : '<span class="tag-amber" style="background:transparent;padding:0;color:#ba6400">1 (Manageable)</span>';
-      document.getElementById('ew_ready').innerHTML = state.envCleared ? '<span class="tag-green">Cleared</span>' : (envReady ? '<span class="tag-green">Ready for Sign-off</span>' : '<span class="tag-amber">Trending Positive</span>');
-      
-      let ewBan = document.getElementById('ew_banner');
-      if(state.envCleared) {
-          ewBan.className = 'sf-banner success'; ewBan.innerHTML = '&#10003; Environmental Workspace Cleared.';
-      } else if(envReady) {
-          ewBan.className = 'sf-banner success'; ewBan.innerHTML = '&#10003; All environmental inputs complete. Ready for clearance page.';
-      } else {
-          ewBan.className = 'sf-banner warn'; ewBan.innerHTML = '&#9888; Action required: Admin items and issue resolution required for clearance.';
-      }
-
-      let dstat = document.getElementById('ew_draft_stat');
-      if(state.draftDone) { dstat.className='tag-green'; dstat.innerText='Drafting Submitted'; }
-      else { dstat.className='tag-amber'; dstat.innerText='Awaiting Draft'; }
-  }
-
   // Drafting
   let dBan = document.getElementById('ed_stat_banner');
   if(dBan) {
@@ -247,59 +213,115 @@ function updateUI() {
       if(adminReady) tskAll.style.display = 'block'; else tskAll.style.display = 'none';
   }
 
-  // Readiness
-  let rEv = document.getElementById('er_chk_ev');
-  if(rEv) {
-      rEv.innerHTML = state.evidenceReviewed ? '✅ Key evidence (APP-044) reviewed' : '❌ Key evidence (APP-044) reviewed';
-      document.getElementById('er_chk_cons').innerHTML = consReady ? '✅ Consultation adequacy achieved' : '❌ Consultation adequacy achieved';
-      document.getElementById('er_chk_iss').innerHTML = issueReady ? '✅ Blocking issue ENV-ISS-001 resolved' : '❌ Missing sign-off: ENV-ISS-001 is blocking';
-      document.getElementById('er_chk_draft').innerHTML = state.draftDone ? '✅ Report drafting submitted' : '❌ Report drafting not submitted';
-      
-      document.getElementById('er_chk_adm_cons').innerHTML = state.taskConsAdminComplete ? '✅ Consultation metadata validation complete' : '❌ Consultation metadata validation complete';
-      document.getElementById('er_chk_adm_doc').innerHTML = state.taskDocAdminComplete ? '✅ Evidence & document metadata verified' : '❌ Evidence & document metadata verified';
-
-      let eqReady = document.getElementById('er_overall');
-      let erBtn = document.getElementById('er_btn_clear');
-      if(state.envCleared) {
-          eqReady.innerHTML = '<span class="tag-green">Cleared</span>'; erBtn.disabled = true; erBtn.innerText = 'Cleared ✓';
-      } else {
-          if(envReady) { eqReady.innerHTML = '<span class="tag-green">Ready to Sign-off</span>'; erBtn.disabled = false; erBtn.innerText = 'Sign-off Env Clearance'; }
-          else { eqReady.innerHTML = '<span class="tag-amber">Trending Positive</span>'; erBtn.disabled = true; erBtn.innerText = 'Requirements Not Met'; }
-      }
+  // Planning / Orchestra Workspace Updates
+  let pwDraftAck = document.getElementById('pw_draft_ack');
+  if(pwDraftAck) {
+     if(state.planDraftAck) {
+         pwDraftAck.innerHTML = '<span class="tag-green">Yes</span>';
+         document.getElementById('pw_btn_ack').style.display = 'none';
+     } else {
+         pwDraftAck.innerHTML = '<span class="tag-amber">No</span>';
+         document.getElementById('pw_btn_ack').style.display = 'inline-block';
+     }
+     
+     let pwEnvStat = document.getElementById('pw_env_stat');
+     if(state.envCleared) pwEnvStat.innerHTML = '<span class="tag-green">Cleared</span>';
+     else if(envReady) pwEnvStat.innerHTML = '<span class="tag-amber">Env Validation Ready</span>';
+     else pwEnvStat.innerHTML = '<span class="tag-red">In Review / Blocked</span>';
+     
+     let pwConsStat = document.getElementById('pw_cons_stat');
+     if(state.consAdequacy === 'Sufficient') pwConsStat.innerHTML = '<span class="tag-green">Complete</span>';
+     else pwConsStat.innerHTML = '<span class="tag-amber">Pending Admin/Assessment</span>';
   }
 
-  // Master / Shared Case Work
+  // Submission Pack Coordination Updates
+  let ppEnvDraft = document.getElementById('pp_env_draft');
+  if(ppEnvDraft) {
+     if(state.draftDone) ppEnvDraft.innerHTML = '<span class="tag-green">Submitted</span>';
+     else ppEnvDraft.innerHTML = '<span class="tag-red">Awaiting Draft</span>';
+     
+     let ppStat = document.getElementById('pp_stat');
+     let ppBan = document.getElementById('pp_banner');
+     let btnPpRev = document.getElementById('btn_pp_rev');
+     if(state.planPackRev) {
+         ppStat.innerHTML = '<span class="tag-green">Compiled & Validated</span>';
+         ppBan.className = 'sf-banner success'; ppBan.innerHTML = '&#10003; Submission Pack components have been structurally validated.';
+         btnPpRev.style.display = 'none';
+     } else if (state.draftDone) {
+         ppStat.innerHTML = '<span class="tag-amber">Ready for Review</span>';
+         ppBan.className = 'sf-banner info'; ppBan.innerHTML = 'All components submitted. Awaiting Planning verification.';
+         btnPpRev.style.display = 'inline-block';
+     } else {
+         ppStat.innerHTML = '<span class="tag-amber">Drafting / Compiling</span>';
+         ppBan.className = 'sf-banner warn'; ppBan.innerHTML = 'Review draft contributions from cross-functional teams prior to pack compilation.';
+         btnPpRev.style.display = 'none';
+     }
+  }
+
+  // Master Clearance Updates
+  let prSumm = document.getElementById('pr_summ');
+  if(prSumm) {
+     if(state.masterCleared) {
+         prSumm.innerHTML = '<span class="tag-green">Master Case Cleared</span>';
+         document.getElementById('pr_banner').className = 'sf-banner success';
+         document.getElementById('pr_banner').innerHTML = '&#10003; Final Case Decision Released.';
+         document.getElementById('btn_master_clear').style.display = 'none';
+         document.getElementById('btn_pr_track').style.display = 'none';
+     } else {
+         let mmban = document.getElementById('pr_banner');
+         if(masterReady) {
+             prSumm.innerHTML = '<span class="tag-green">Ready To Publish</span>';
+             mmban.className = 'sf-banner info'; mmban.innerHTML = 'Core dependencies cleared. Awaiting Orchestrator Final Sign-off.';
+             document.getElementById('btn_master_clear').disabled = false;
+         } else {
+             prSumm.innerHTML = state.planOnTrack ? '<span class="tag-amber">On Track</span>' : '<span class="tag-amber">Trending Positive</span>';
+             mmban.className = 'sf-banner error'; mmban.innerHTML = 'Master clearance cannot proceed. Core dependencies are incomplete.';
+             document.getElementById('btn_master_clear').disabled = true;
+         }
+         if(state.planOnTrack) {
+             let tkBtn = document.getElementById('btn_pr_track');
+             tkBtn.innerText = '✅ Endorsed On Track';
+             tkBtn.style.color = '#2e844a'; tkBtn.style.borderColor = '#2e844a';
+         }
+     }
+     
+     document.getElementById('pr_chk_cons').innerHTML = consReady ? '✅ Active Consultations tracking Sufficient' : '❌ Active Consultations tracking Sufficient';
+     document.getElementById('pr_chk_env').innerHTML = state.envCleared ? '✅ Environmental Workspace Sign-off Received' : '❌ Environmental Workspace Sign-off Received';
+     document.getElementById('pr_chk_pack').innerHTML = state.planPackRev ? '✅ Submission Pack Reviewed & Compiled' : '❌ Submission Pack Reviewed & Compiled';
+  }
+
+  // Master / Shared Case Work Updates
   let cwBan = document.getElementById('cw_banner');
   if(cwBan) {
-      let tAdm = document.getElementById('case_admin_tasks');
-      if(adminReady) tAdm.innerHTML = '<span class="tag-green">Complete</span>';
-      else tAdm.innerHTML = `<span class="tag-amber">${adminTaskCount} Open</span>`;
-
-      if(state.envCleared) {
-          cwBan.className = 'sf-banner success'; cwBan.innerHTML = '&#10003; Environmental clearance received. Case ready for final decision publication.';
+      if(state.masterCleared) {
+          cwBan.className = 'sf-banner success'; cwBan.innerHTML = '&#10003; Case complete. Master Decision Published.';
           document.getElementById('case_env_block_ind').innerHTML = '<span class="tag-green">No</span>';
-          document.getElementById('case_env_status').innerHTML = '<span class="tag-green">Cleared</span>';
+          document.getElementById('case_plan_track_ind').innerHTML = '<span class="tag-green">Published</span>';
           document.getElementById('case_overall_rag').innerHTML = '<span class="tag-green">Green</span>';
+          document.getElementById('case_plan_status').innerHTML = '<span class="tag-green">Cleared</span>';
+      } else if(masterReady) {
+          cwBan.className = 'sf-banner info'; cwBan.innerHTML = 'Ready for Master Clearance.';
+          document.getElementById('case_env_block_ind').innerHTML = '<span class="tag-green">No</span>';
+          document.getElementById('case_plan_track_ind').innerHTML = state.planOnTrack ? '<span class="tag-green">Confirmed On Track</span>' : '<span class="tag-amber">Pending Check</span>';
+          document.getElementById('case_overall_rag').innerHTML = '<span class="tag-green">Green</span>';
+          document.getElementById('case_plan_status').innerHTML = '<span class="tag-green">Awaiting Clearance</span>';
       } else {
           if(state.leadFlagged) {
             cwBan.className = 'sf-banner error'; cwBan.innerHTML = '&#9888; Master Clearance requires final Environmental sign-off. (🚩 Flagged by Lead)';
             document.getElementById('case_env_block_ind').innerHTML = '<span class="tag-red">Yes</span>';
-            document.getElementById('case_env_status').innerHTML = '<span class="tag-red">Flagged</span>';
             document.getElementById('case_overall_rag').innerHTML = '<span class="tag-red">Red</span>';
           } else {
             cwBan.className = 'sf-banner warn'; cwBan.innerHTML = '&#9888; Master Clearance requires final Environmental sign-off.';
             document.getElementById('case_env_block_ind').innerHTML = '<span class="tag-amber">Trending</span>';
-            document.getElementById('case_env_status').innerHTML = '<span class="tag-amber">Trending Positive</span>';
             document.getElementById('case_overall_rag').innerHTML = '<span class="tag-amber">Amber</span>';
           }
+          document.getElementById('case_plan_track_ind').innerHTML = state.planOnTrack ? '<span class="tag-green">Confirmed On Track</span>' : '<span class="tag-amber">Pending Check</span>';
+          document.getElementById('case_plan_status').innerHTML = '<span class="tag-amber">In Progress</span>';
       }
       
-      // Update quick tasks list
-      let ttl = '';
-      if(!state.taskConsAdminComplete) ttl += `<tr onclick="navigateTo('env_cons', 'env')" style="cursor:pointer;background:#fff8ed"><td class="link">Process NE Consultation Admin Data</td><td>Action Coordinator</td></tr>`;
-      if(!state.taskDocAdminComplete) ttl += `<tr onclick="navigateTo('shared_docs', 'shared')" style="cursor:pointer;background:#fff8ed"><td class="link">Verify APP-044 Document Metadata</td><td>Action Coordinator</td></tr>`;
-      if(adminReady) ttl = `<tr><td style="color:#2e844a;font-weight:600">&#10003; All current coordination tasks complete</td><td></td></tr>`;
-      document.getElementById('cw_task_table').innerHTML = `<tbody>${ttl}</tbody>`;
+      let tAdm = document.getElementById('case_admin_tasks');
+      if(adminReady) tAdm.innerHTML = '<span class="tag-green">Complete</span>';
+      else tAdm.innerHTML = `<span class="tag-amber">${adminTaskCount} Open</span>`;
   }
 }
 
