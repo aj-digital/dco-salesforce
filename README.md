@@ -12,11 +12,14 @@ This prototype wires the base Salesforce wireframes into a connected, stateful f
 
 ---
 
-## 2. DCO Environmental Case Manager & Lead Journey 
+## 2. DCO Environmental Case Manager, Lead & Coordinator Journey 
 
 **Location:** Inside the `/prototype` folder (Node.js/Express app).
 
-This updated prototype implements the comprehensive **Environmental Case Manager Journey** alongside an explicit **Environmental Lead / Team Leader Happy Path**. It illustrates a complete workflow showing how environmental evidence is reviewed, issues resolved, drafting input, and leadership oversight dynamically influences master case clearance state.
+This updated prototype implements the comprehensive **Environmental Case Journeys** for three interoperating Personas:
+1. **Case Manager:** Reviewing evidence, making consultation adequacy judgments, resolving issues, and contributing text drafting.
+2. **Team Leader:** Surfacing aggregated risk at the Portfolio Dashboard level, drilling down contextually, attaching string-based leadership notes, and flagging/endorsing issues natively.
+3. **Support Coordinator (Admin):** Processing metadata and recording extensions across key records to unblock the Case Manager.
 
 ### How to Run:
 ```bash
@@ -26,28 +29,21 @@ npm start
 ```
 Then navigate to `http://localhost:3000` in your browser.
 
-### How to Demo the Flow (Lead / Team Leader UX):
-**Initial state:** Case is "Amber", progressing nicely but not reviewed by a lead.
+### How to Demo the Flow (Coordinator UX - Happy Path):
+**Initial state:** Case is waiting on Environmental admin tasks & clearance.
 
-1. Start at the **Environmental Team -> Env Portfolio Dash**. Observe the top-level KPIs (8 active cases, 3 Amber, 1 Blocked, 0 Lead Reviewed). The list shows `DCO-2026-012` is Amber but Unreviewed.
-2. Drill down into the specific portfolio case by clicking the **"DCO-2026-012"** case row.
-3. You are now inside the specific **DCO Case Workspace**. Observe the high level overview. Click on the row denoting **"Environmental Review Workspace"** to dig deeper into the Env work.
-4. You are presented with the Env Workspace. The case is "Trending Positive". Click into the single outstanding issue **ENV-ISS-001 (Habitats)**.
-5. In the **Env Issue Detail** dashboard, you can view the context. The Lead can provide a light-touch direct intervention:
-   - Type a note in the Leadership tools interface (e.g. "Spoke with Natural England, on track for this Friday") and click **"Save Note"**.
-   - Click the green **"✅ Mark Case as Reviewed"** button.
-6. Click **"Back to Env Workspace"**. Notice your actions dynamically updated the "Leadership Context" highlight panel.
-7. Navigate into the **Env Readiness** panel from the dashboard. Notice `Trending Positive` is confirmed. 
-8. The lead can explicitly click **"Leadership: Confirm Case on Track"** to lock endorsement. 
-9. Return to the root **Env Portfolio Dashboard** using the main navigation. 
-   - Observe that the case `Leadership Status` has now cleanly changed from "Unreviewed" to "✅ Reviewed".
-   - The top-level KPI for "Lead Reviewed" dynamically increments from 0 to 1.
+1. Start at the **Shared / Cross-Team -> DCO Case Workspace**. Observe the high-level overview. Notice the new "Admin/Coord Tasks" KPI reads explicitly "2 Open", and a specific actionable checklist sits on the Dashboard ("Process NE Consultation Admin Data", "Verify Document Metadata").
+2. Click through to the **Tasks & Actions** page from the sidebar. You will see the Coordinator's open tasks. 
+3. Click **"Open Document ->"**. Inside the Docs & Evidence viewer, at the bottom is a new Support Coordinator Admin Panel. Click **"Confirm Metadata Complete"**.
+4. Click **"Back to Case"** at the top left. The first task is checked off! Now click through the remaining Consultation action item.
+5. In the **Consultation Tracker**, look at the blue **Support Coordinator Admin Panel**. You can modify the Due Date calendar input or toggle the "Yes, Extended" checkbox which dynamically saves to the case.
+6. Click **"Confirm Admin Metadata Complete"**.
+7. Navigate back to **Tasks & Actions**. Look! *✓ All environmental coordination tasks are complete!* 
+8. Navigate to **Environmental Team -> Env Readiness**. Note the new "Coordination & Admin Checklist" is now checked green. If you subsequently perform the "Case Manager" duties (Marking Evidence, Validating Adequacy, Submitting Drafts), the env clearance drops completely!
 
-*(Note: In the issue detail menu, a lead could alternatively click '🚩 Flag for Attention', which propagates outwards instantly turning the Master Case Dashboard red/at-risk until remedied).*
-
-### What State Changes are Supported (Lead additions):
-- **Portfolio filtering state:** Start directly at the Portfolio level and retain case-level focus during drill-down.
-- **Lead Oversight Actions:** Supports recording `Mark Reviewed`, `Flag for Attention`, explicit `Lead Endorsed Readiness`, and string-based text notes injected down into localized environments.
-- **Dynamic Bubble-up:** Lead oversight directly intercepts the baseline Case Officer state machine. Flagging a localized issue automatically shifts the master case dashboard to Red/Blocked.
+### What State Changes are Supported (Coordinator additions):
+- **Dynamic Task Lists:** Tasks exist independently but roll-up cleanly to the root Case workspace when unfulfilled.
+- **Micro-interactions:** Custom Date/Extension tracking parameters cleanly mapped across to states.
+- **Admin Lockouts:** Case Managers definitively *cannot* "Resolve" their Environmental Issues until the Support Coordinator has verified the underlying Consultation metadata and Document storage indexing, proving rigid role-protection.
 
 *(If you ever get stuck, just press the red **Reset Journey State** button at the top!)*
