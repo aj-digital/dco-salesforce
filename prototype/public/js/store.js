@@ -1,15 +1,20 @@
-// Mock State DCO Env Journey
+// Mock State DCO Env Manager & Lead Journey
 let state = {
   evidenceReviewed: false,
   consAdequacy: 'Pending', // 'Pending', 'Insufficient', 'Partially Sufficient', 'Sufficient'
-  issueStatus: 'Open',     // 'Open', 'In Review', 'Resolved'
+  issueStatus: 'In Review',// 'Open', 'In Review', 'Resolved'  (Starts as Amber for Lead mock scenario)
   draftDone: false,
   envCleared: false,
-  masterCleared: false
+  masterCleared: false,
+  // Lead State overrides
+  leadFlagged: false,
+  leadReviewed: false,
+  leadNote: '',
+  leadEndorsed: false
 };
 
 function initState() {
-  let saved = localStorage.getItem('dco_env_journey');
+  let saved = localStorage.getItem('dco_env_journey_lead');
   if(saved) {
       try { state = JSON.parse(saved); } catch(e){}
   }
@@ -17,22 +22,26 @@ function initState() {
 }
 
 function saveState() {
-  localStorage.setItem('dco_env_journey', JSON.stringify(state));
+  localStorage.setItem('dco_env_journey_lead', JSON.stringify(state));
   updateUI();
 }
 
 function resetState() {
-  localStorage.removeItem('dco_env_journey');
+  localStorage.removeItem('dco_env_journey_lead');
   state = {
       evidenceReviewed: false,
       consAdequacy: 'Pending',
-      issueStatus: 'Open',
+      issueStatus: 'In Review',
       draftDone: false,
       envCleared: false,
-      masterCleared: false
+      masterCleared: false,
+      leadFlagged: false,
+      leadReviewed: false,
+      leadNote: '',
+      leadEndorsed: false
   };
   saveState();
-  navigateTo('shared_case_work', 'shared');
+  navigateTo('env_dash', 'env');
 }
 
 // Navigation Logic
@@ -100,6 +109,33 @@ function actionEnvClearance() {
   alert("Environmental Clearance signed off! Overall Case Unblocked.");
 }
 
+// Leadership Actions
+function actionLeadFlag() {
+  state.leadFlagged = true;
+  state.leadReviewed = false; // mutually exclusive logic for UX
+  saveState();
+}
+
+function actionLeadReview() {
+  state.leadReviewed = true;
+  state.leadFlagged = false;
+  saveState();
+}
+
+function actionLeadNote() {
+  let val = document.getElementById('lead_note_in').value;
+  if(val.trim() !== '') {
+    state.leadNote = val;
+    saveState();
+    document.getElementById('lead_note_in').value = ''; 
+  }
+}
+
+function actionLeadEndorse() {
+  state.leadEndorsed = true;
+  saveState();
+}
+
 // UI Sync
 function updateUI() {
   // Check conditions
@@ -155,6 +191,7 @@ function updateUI() {
 
       let evStat = document.getElementById('ei_ev_stat');
       if(state.evidenceReviewed) { evStat.className='tag-green'; evStat.innerHTML='&#10003; Reviewed'; }
+      else { evStat.className='tag-red'; evStat.innerHTML='Unreviewed'; }
       
       let consAdq = document.getElementById('ei_cons_adequacy');
       if(state.consAdequacy === 'Sufficient') { consAdq.className='tag-green'; consAdq.innerHTML='Sufficient'; }
@@ -179,6 +216,19 @@ function updateUI() {
               eiBan.innerHTML = 'This issue requires consultation adequacy and evidence review before it can be resolved.';
           }
       }
+
+      // Leadership Output
+      let noteDisp = document.getElementById('lead_note_disp');
+      if(noteDisp) {
+        if(state.leadNote) noteDisp.innerHTML = `🗨️ Lead Note: "${state.leadNote}"`;
+        else noteDisp.innerHTML = '';
+      }
+      let btnFlag = document.getElementById('btn_lead_flag');
+      let btnRev = document.getElementById('btn_lead_rev');
+      if(btnFlag) {
+        btnFlag.style.outline = state.leadFlagged ? '2px solid #ba0517' : 'none';
+        btnRev.style.outline = state.leadReviewed ? '2px solid #2e844a' : 'none';
+      }
   }
 
   // Env Review Workspace
@@ -193,8 +243,8 @@ function updateUI() {
       else if(state.consAdequacy === 'Pending') ewCons.innerHTML = '<span class="tag-amber">Pending</span>';
       else ewCons.innerHTML = `<span class="tag-red">${state.consAdequacy}</span>`;
 
-      document.getElementById('ew_blocking_n').innerHTML = issueReady ? '<span class="tag-green">0</span>' : '<span class="tag-red">1</span>';
-      document.getElementById('ew_ready').innerHTML = state.envCleared ? '<span class="tag-green">Cleared</span>' : (envReady ? '<span class="tag-green">Ready for Sign-off</span>' : '<span class="tag-red">Blocked</span>');
+      document.getElementById('ew_blocking_n').innerHTML = issueReady ? '<span class="tag-green">0</span>' : '<span class="tag-amber" style="background:transparent;padding:0;color:#ba6400">1 (Manageable)</span>';
+      document.getElementById('ew_ready').innerHTML = state.envCleared ? '<span class="tag-green">Cleared</span>' : (envReady ? '<span class="tag-green">Ready for Sign-off</span>' : '<span class="tag-amber">Trending Positive</span>');
       
       let ewBan = document.getElementById('ew_banner');
       if(state.envCleared) {
@@ -202,12 +252,17 @@ function updateUI() {
       } else if(envReady) {
           ewBan.className = 'sf-banner success'; ewBan.innerHTML = '&#10003; All environmental inputs complete. Ready for clearance page.';
       } else {
-          ewBan.className = 'sf-banner error'; ewBan.innerHTML = '&#9888; Environmental progression is currently blocked by outstanding items.';
+          ewBan.className = 'sf-banner warn'; ewBan.innerHTML = '&#9888; Action required: 1 key issue needs resolution to achieve full clearance.';
       }
 
       let dstat = document.getElementById('ew_draft_stat');
       if(state.draftDone) { dstat.className='tag-green'; dstat.innerText='Drafting Submitted'; }
-      else { dstat.className='tag-red'; dstat.innerText='Submission Required'; }
+      else { dstat.className='tag-amber'; dstat.innerText='Awaiting Draft'; }
+
+      let leadCtx = document.getElementById('ew_lead_ctx');
+      if(state.leadFlagged) leadCtx.innerHTML = '<span class="tag-red">🚩 Flagged for Attention</span>';
+      else if(state.leadReviewed) leadCtx.innerHTML = '<span class="tag-green">✅ Lead Reviewed</span>';
+      else leadCtx.innerHTML = '<span class="tag-gray">Not specified</span>';
   }
 
   // Drafting
@@ -243,11 +298,49 @@ function updateUI() {
               erBtn.disabled = false;
               erBtn.innerText = 'Sign-off Env Clearance';
           } else {
-              eqReady.innerHTML = '<span class="tag-red">Blocked</span>';
+              eqReady.innerHTML = '<span class="tag-amber">Trending Positive</span>';
               erBtn.disabled = true;
               erBtn.innerText = 'Requirements Not Met';
           }
       }
+
+      let bEndorse = document.getElementById('er_btn_endorse');
+      if(bEndorse) {
+        if(state.leadEndorsed) {
+          bEndorse.innerText = '✅ Endorsed: Case on Track';
+          bEndorse.style.background = '#eaf5ea';
+        } else {
+          bEndorse.innerText = 'Leadership: Confirm Case on Track';
+          bEndorse.style.background = 'transparent';
+        }
+      }
+  }
+
+  // Dashboards + Shared
+  let ldDash = document.getElementById('dash_lead_stat');
+  if(ldDash) {
+    if(state.leadFlagged) ldDash.innerHTML = '<span class="tag-red">🚩 Flagged</span>';
+    else if(state.leadReviewed) ldDash.innerHTML = '<span class="tag-green">✅ Reviewed</span>';
+    else ldDash.innerHTML = '<span class="tag-gray">Unreviewed</span>';
+
+    // RAG Dash Updates
+    let envBlocks = document.getElementById('env_dash_blocks');
+    let envRevs = document.getElementById('env_dash_rev');
+    let dready = document.getElementById('dash_ready');
+    
+    if(state.envCleared) { 
+        envBlocks.innerText = '0';
+        dready.innerHTML = '<span class="tag-green">Cleared</span>';
+    } else if (state.leadFlagged) {
+        dready.innerHTML = '<span class="tag-red">At Risk</span>';
+    } else if (envReady) { 
+        envBlocks.innerText = '0';
+        dready.innerHTML = '<span class="tag-green">Ready</span>';
+    } else {
+        dready.innerHTML = '<span class="tag-amber">Trending Positive</span>';
+    }
+
+    if(state.leadReviewed) envRevs.innerText = '1'; else envRevs.innerText = '0';
   }
 
   // Master / Shared
@@ -260,29 +353,22 @@ function updateUI() {
           document.getElementById('case_env_status').innerHTML = '<span class="tag-green">Cleared</span>';
           document.getElementById('case_overall_rag').innerHTML = '<span class="tag-green">Green</span>';
       } else {
-          cwBan.className = 'sf-banner error';
-          cwBan.innerHTML = '&#9888; Master Clearance blocked by incomplete Environmental sign-off.';
-          document.getElementById('case_env_block_ind').innerHTML = '<span class="tag-red">Yes</span>';
-          document.getElementById('case_env_status').innerHTML = '<span class="tag-red">Blocked</span>';
-          document.getElementById('case_overall_rag').innerHTML = '<span class="tag-red">Red</span>';
-      }
-  }
-  
-  let prBan = document.getElementById('pr_banner');
-  if(prBan) {
-      let bMc = document.getElementById('btn_master_clear');
-      if(state.envCleared) {
-          prBan.className = 'sf-banner success';
-          prBan.innerHTML = '&#10003; All clearances granted. Validated for minister submission.';
-          bMc.disabled = false;
-      } else {
-          prBan.className = 'sf-banner error';
-          prBan.innerHTML = 'Master clearance cannot proceed. Waiting on Environmental.';
-          bMc.disabled = true;
+          if(state.leadFlagged) {
+            cwBan.className = 'sf-banner error';
+            cwBan.innerHTML = '&#9888; Master Clearance requires final Environmental sign-off. (🚩 Flagged by Lead)';
+            document.getElementById('case_env_block_ind').innerHTML = '<span class="tag-red">Yes</span>';
+            document.getElementById('case_env_status').innerHTML = '<span class="tag-red">Flagged</span>';
+            document.getElementById('case_overall_rag').innerHTML = '<span class="tag-red">Red</span>';
+          } else {
+            cwBan.className = 'sf-banner warn';
+            cwBan.innerHTML = '&#9888; Master Clearance requires final Environmental sign-off.';
+            document.getElementById('case_env_block_ind').innerHTML = '<span class="tag-amber">Trending</span>';
+            document.getElementById('case_env_status').innerHTML = '<span class="tag-amber">Trending Positive</span>';
+            document.getElementById('case_overall_rag').innerHTML = '<span class="tag-amber">Amber</span>';
+          }
       }
   }
 }
 
 // Ensure init on DOM content load
 document.addEventListener('DOMContentLoaded', initState);
-// Note: We use window.onload or DOMContentLoaded to execute updateUI() after the elements are parsed.
